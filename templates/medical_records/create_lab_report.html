@@ -145,8 +145,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-file-upload mr-2 text-purple-600"></i>Report File (Optional)
                         </label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
-                            <div class="space-y-2">
+                        <div id="file-upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+                            <div id="upload-content" class="space-y-2">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
                                 <div class="text-sm text-gray-600">
                                     <label for="report_file" class="cursor-pointer text-purple-600 hover:text-purple-700">
@@ -156,6 +156,16 @@
                                     or drag and drop
                                 </div>
                                 <p class="text-xs text-gray-500">PDF, JPG, PNG, DOC up to 10MB</p>
+                            </div>
+                            <div id="file-info" class="hidden space-y-2">
+                                <i class="fas fa-file-check text-4xl text-green-500"></i>
+                                <div class="text-sm text-gray-700">
+                                    <p class="font-medium" id="file-name"></p>
+                                    <p class="text-xs text-gray-500" id="file-size"></p>
+                                </div>
+                                <button type="button" id="remove-file" class="text-red-600 hover:text-red-700 text-sm">
+                                    <i class="fas fa-trash mr-1"></i>Remove file
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -174,4 +184,120 @@
         </div>
     </div>
 </div>
+    </div>
+</div>
+
+<script>
+// File upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('report_file');
+    const uploadArea = document.getElementById('file-upload-area');
+    const uploadContent = document.getElementById('upload-content');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFileBtn = document.getElementById('remove-file');
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileUpload(file);
+        }
+    });
+
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-purple-500', 'bg-purple-50');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-purple-500', 'bg-purple-50');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-purple-500', 'bg-purple-50');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileUpload(files[0]);
+        }
+    });
+
+    // Remove file handler
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        uploadContent.classList.remove('hidden');
+        fileInfo.classList.add('hidden');
+        uploadArea.classList.remove('border-green-500', 'bg-green-50');
+        uploadArea.classList.add('border-gray-300');
+    });
+
+    // Handle file upload
+    function handleFileUpload(file) {
+        // Validate file size (10MB max)
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (file.size > maxSize) {
+            alert('File size must be less than 10MB');
+            fileInput.value = '';
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Invalid file type. Please upload PDF, JPG, PNG, or DOC files.');
+            fileInput.value = '';
+            return;
+        }
+
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        
+        // Update UI
+        uploadContent.classList.add('hidden');
+        fileInfo.classList.remove('hidden');
+        uploadArea.classList.remove('border-gray-300');
+        uploadArea.classList.add('border-green-500', 'bg-green-50');
+
+        // Show success message
+        showSuccessMessage('File uploaded successfully!');
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Show success message
+    function showSuccessMessage(message) {
+        // Create success message element
+        const successDiv = document.createElement('div');
+        successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2';
+        successDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+        `;
+        
+        // Add to page
+        document.body.appendChild(successDiv);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            if (successDiv.parentNode) {
+                successDiv.parentNode.removeChild(successDiv);
+            }
+        }, 3000);
+    }
+});
+</script>
 {% endblock %}
