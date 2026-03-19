@@ -7,15 +7,16 @@ from django.contrib import messages
 from django.views.generic import TemplateView, ListView, UpdateView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
+from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.db import models
-from django.db.models import Count, Q, Sum
 from datetime import datetime, timedelta
 from .models import User, PatientProfile, DoctorProfile
 from .forms import UserRegistrationForm, PatientProfileForm, DoctorProfileForm, UserUpdateForm
 from appointments.models import Appointment
 from prescriptions.models import Prescription
+from billing.models import Bill
 import os
 
 def _google_login_enabled():
@@ -536,15 +537,60 @@ def user_details_view(request, user_id):
             'user': user,
         }
         
-        # Add role-specific statistics
+        # Add role-specific statistics and data
         if user.role == 'doctor':
-            context['doctor_appointments'] = user.doctor_appointments.all() if hasattr(user, 'doctor_appointments') else []
-            context['doctor_prescriptions'] = user.doctor_prescriptions.all() if hasattr(user, 'doctor_prescriptions') else []
+            # Get doctor's appointments where they are the doctor
+            context['total_appointments'] = Appointment.objects.filter(doctor=user).count()
+            context['total_prescriptions'] = Prescription.objects.filter(doctor=user).count()
+            context['total_patients'] = Appointment.objects.filter(doctor=user).values('patient').distinct().count()
+            
         elif user.role == 'patient':
-            context['patient_appointments'] = user.patient_appointments.all() if hasattr(user, 'patient_appointments') else []
-            context['patient_prescriptions'] = user.patient_prescriptions.all() if hasattr(user, 'patient_prescriptions') else []
-            context['bills'] = user.bills.all() if hasattr(user, 'bills') else []
+            # Get patient's appointments where they are the patient
+            context['total_appointments'] = Appointment.objects.filter(patient=user).count()
+            context['total_prescriptions'] = Prescription.objects.filter(patient=user).count()
+            context['total_bills'] = Bill.objects.filter(patient=user).count()
+            
+            # Get medical records and lab reports for patient
+            try:
+                context['total_medical_records'] = user.medical_records_as_patient.count()
+            except:
+                context['total_medical_records'] = 0
+            try:
+                context['total_lab_reports'] = user.lab_reports.count()
+            except:
+                context['total_lab_reports'] = 0
+            
+            # Calculate total billing amount
+            billing_data = Bill.objects.filter(patient=user).aggregate(
+                total=Sum('total_amount'),
+                paid=Sum('total_amount', filter=Q(status='paid'))
+            )
+            context['total_billing_amount'] = billing_data['total'] or 0
+            context['paid_amount'] = billing_data['paid'] or 0
+            context['pending_amount'] = context['total_billing_amount'] - context['paid_amount']
+            
+        else:  # admin user
+            context['total_users_managed'] = User.objects.count() - 1  # exclude self
+            context['total_appointments_system'] = Appointment.objects.count()
+            context['total_prescriptions_system'] = Prescription.objects.count()
+            context['total_bills_system'] = Bill.objects.count()
+            
+            # Get system statistics
+            today = timezone.now().date()
+            context['today_appointments'] = Appointment.objects.filter(date_time__date=today).count()
+            context['active_users'] = User.objects.filter(is_active=True).count()
+            context['total_patients_system'] = User.objects.filter(role='patient').count()
+            context['total_doctors_system'] = User.objects.filter(role='doctor').count()
         
+        # Calculate account age and activity
+        context['account_age_days'] = (timezone.now().date() - user.date_joined.date()).days
+        context['days_since_last_login'] = (timezone.now() - user.last_login).days if user.last_login else None
+        
+        # Check if it's an AJAX request to return a partial
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            context['is_modal'] = True
+            return render(request, 'accounts/user_details_partial.html', context)
+            
         return render(request, 'accounts/user_details.html', context)
         
     except Exception as e:
@@ -554,6 +600,43 @@ def user_details_view(request, user_id):
         print(f"DEBUG: Traceback: {traceback.format_exc()}")
         messages.error(request, error_message)
         return redirect('accounts:admin_dashboard_users')
+
+@login_required
+def export_users_csv(request):
+    """Export all users and their details to CSV"""
+    if not request.user.is_admin:
+        messages.error(request, 'Access denied!')
+        return redirect('accounts:dashboard')
+    
+    import csv
+    from django.http import HttpResponse
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="users_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow([
+        'ID', 'Email', 'Full Name', 'Role', 'Phone', 'Is Active', 
+        'Date Joined', 'Last Login', 'Specialization (Doctor)', 
+        'License (Doctor)', 'Gender (Patient)', 'DOB (Patient)'
+    ])
+    
+    users = User.objects.all().select_related('doctor_profile', 'patient_profile')
+    for u in users:
+        doctor_spec = u.doctor_profile.specialization if u.role == 'doctor' and hasattr(u, 'doctor_profile') else ''
+        doctor_license = u.doctor_profile.license_number if u.role == 'doctor' and hasattr(u, 'doctor_profile') else ''
+        patient_gender = u.patient_profile.get_gender_display() if u.role == 'patient' and hasattr(u, 'patient_profile') else ''
+        patient_dob = u.patient_profile.date_of_birth if u.role == 'patient' and hasattr(u, 'patient_profile') else ''
+        
+        writer.writerow([
+            u.id, u.email, u.get_full_name(), u.get_role_display(), u.phone,
+            'Yes' if u.is_active else 'No',
+            u.date_joined.strftime('%Y-%m-%d %H:%M'),
+            u.last_login.strftime('%Y-%m-%d %H:%M') if u.last_login else 'Never',
+            doctor_spec, doctor_license, patient_gender, patient_dob
+        ])
+    
+    return response
 
 @login_required
 def toggle_user_status(request, user_id):

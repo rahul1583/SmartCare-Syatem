@@ -368,6 +368,68 @@
                             </div>
                         </div>
 
+                        <!-- Summary Statistics -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-2 text-orange-600"></i>
+                                Summary Statistics
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                {% if user.role == 'doctor' %}
+                                    <div class="bg-blue-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-blue-600">{{ total_appointments|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Appointments</div>
+                                    </div>
+                                    <div class="bg-green-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-green-600">{{ total_prescriptions|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Prescriptions</div>
+                                    </div>
+                                    <div class="bg-purple-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-purple-600">{{ total_patients|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Unique Patients</div>
+                                    </div>
+                                    <div class="bg-orange-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-orange-600">{{ account_age_days|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Days on Platform</div>
+                                    </div>
+                                {% elif user.role == 'patient' %}
+                                    <div class="bg-blue-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-blue-600">{{ total_appointments|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Appointments</div>
+                                    </div>
+                                    <div class="bg-green-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-green-600">{{ total_prescriptions|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Prescriptions</div>
+                                    </div>
+                                    <div class="bg-orange-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-orange-600">{{ total_bills|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Bills</div>
+                                    </div>
+                                    <div class="bg-red-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-red-600">Rs. {{ total_billing_amount|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Billing</div>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-purple-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-purple-600">{{ total_users_managed|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Users Managed</div>
+                                    </div>
+                                    <div class="bg-blue-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-blue-600">{{ total_patients_system|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Patients</div>
+                                    </div>
+                                    <div class="bg-green-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-green-600">{{ total_doctors_system|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Total Doctors</div>
+                                    </div>
+                                    <div class="bg-orange-50 rounded-lg p-4">
+                                        <div class="text-2xl font-bold text-orange-600">{{ today_appointments|default:0 }}</div>
+                                        <div class="text-sm text-gray-600">Today's Appointments</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <!-- Recent Activity -->
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -409,6 +471,82 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Additional Information -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-info-circle mr-2 text-indigo-600"></i>
+                                Additional Information
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600">Account Type:</span>
+                                    <span class="font-medium text-gray-900">
+                                        {% if user.is_staff %}Staff Account{% else %}Regular User{% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600">Superuser Status:</span>
+                                    <span class="font-medium text-gray-900">
+                                        {% if user.is_superuser %}Superuser{% else %}Regular User{% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-gray-100">
+                                    <span class="text-gray-600">Email Verified:</span>
+                                    <span class="font-medium text-gray-900">
+                                        {% if user.email_verified %}Yes{% else %}No{% endif %}
+                                    </span>
+                                </div>
+                                {% if user.address %}
+                                    <div class="flex justify-between py-2 border-b border-gray-100">
+                                        <span class="text-gray-600">Full Address:</span>
+                                        <span class="font-medium text-gray-900">{{ user.address }}</span>
+                                    </div>
+                                {% endif %}
+                                <div class="flex justify-between py-2">
+                                    <span class="text-gray-600">User Since:</span>
+                                    <span class="font-medium text-gray-900">
+                                        {{ user.date_joined|date:"F d, Y" }} ({{ user.date_joined|timesince }} ago)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Information (if available) -->
+                        {% if user.role == 'patient' and user.patient_profile %}
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i class="fas fa-notes-medical mr-2 text-pink-600"></i>
+                                    Medical Information
+                                </h3>
+                                <div class="space-y-3">
+                                    {% if user.patient_profile.medical_history %}
+                                        <div class="flex justify-between py-2 border-b border-gray-100">
+                                            <span class="text-gray-600">Medical History:</span>
+                                            <span class="font-medium text-gray-900">
+                                                {% if user.patient_profile.medical_history|length > 100 %}
+                                                    {{ user.patient_profile.medical_history|truncatechars:100 }}...
+                                                {% else %}
+                                                    {{ user.patient_profile.medical_history|default:'Not provided' }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                    {% if user.patient_profile.allergies %}
+                                        <div class="flex justify-between py-2 border-b border-gray-100">
+                                            <span class="text-gray-600">Known Allergies:</span>
+                                            <span class="font-medium text-gray-900">{{ user.patient_profile.allergies|default:'None specified' }}</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if user.patient_profile.emergency_contact %}
+                                        <div class="flex justify-between py-2">
+                                            <span class="text-gray-600">Emergency Contact:</span>
+                                            <span class="font-medium text-gray-900">{{ user.patient_profile.emergency_contact }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 

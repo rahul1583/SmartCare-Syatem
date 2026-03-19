@@ -9,35 +9,69 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16">
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <!-- Left: Logo & Branding -->
                 <div class="flex items-center">
-                    <a href="{% url 'home' %}" class="flex items-center">
-                        <i class="fas fa-heartbeat text-blue-600 text-2xl mr-2"></i>
-                        <span class="font-bold text-xl text-gray-800">SmartCare</span>
+                    <a href="{% url 'home' %}" class="group flex items-center gap-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
+                            <i class="fas fa-heartbeat text-white text-2xl"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-black text-2xl text-slate-800 tracking-tight leading-none">SmartCare</span>
+                            <span class="text-[10px] text-blue-500 font-bold uppercase tracking-widest mt-0.5">Health Systems</span>
+                        </div>
                     </a>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <!-- Right: Navigation Links & Profile -->
+                <div class="flex items-center gap-2 sm:gap-6">
                     {% if user.is_authenticated %}
-                        <span class="text-gray-600">Welcome, {{ user.get_full_name|default:user.username }}</span>
-                        <a href="{% url 'accounts:dashboard' %}" class="text-gray-700 hover:text-blue-600">
-                            <i class="fas fa-dashboard mr-1"></i>Dashboard
+                        <!-- Desktop Navigation -->
+                        <div class="hidden md:flex items-center gap-1">
+                            <a href="{% url 'accounts:dashboard' %}" class="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-semibold text-sm">
+                                <i class="fas fa-th-large text-lg"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </div>
+                        
+                        <!-- User Profile Button -->
+                        <div class="h-10 w-px bg-slate-200 hidden sm:block"></div>
+                        
+                        <a href="{% url 'accounts:profile_update' %}" class="group flex items-center gap-3 pl-1 pr-4 py-1.5 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300" title="Manage Profile">
+                            <div class="relative">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Profile" class="w-10 h-10 rounded-xl object-cover shadow-sm ring-2 ring-white group-hover:ring-blue-100 transition-all">
+                                {% else %}
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white group-hover:ring-blue-100 transition-all">
+                                        {% if user.first_name or user.last_name %}{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}{% else %}{{ user.email|slice:":1"|upper }}{% endif %}
+                                    </div>
+                                {% endif %}
+                                <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-sm"></div>
+                            </div>
+                            <div class="hidden sm:flex flex-col">
+                                <span class="text-sm font-bold text-slate-900 leading-none group-hover:text-blue-600 transition-colors">{{ user.get_full_name|default:user.email|truncatechars:18 }}</span>
+                                <span class="text-[11px] text-slate-500 font-semibold mt-1 flex items-center gap-1">
+                                    <span class="w-1 h-1 bg-blue-400 rounded-full"></span>
+                                    {{ user.get_role_display }}
+                                </span>
+                            </div>
                         </a>
-                        <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-blue-600">
-                            <i class="fas fa-user mr-1"></i>Profile
-                        </a>
-                        <a href="{% url 'accounts:logout' %}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+
+                        <!-- Logout -->
+                        <a href="{% url 'accounts:logout' %}" class="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm border border-rose-100" title="Sign Out">
+                            <i class="fas fa-sign-out-alt"></i>
                         </a>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="text-gray-700 hover:text-blue-600">
-                            <i class="fas fa-sign-in-alt mr-1"></i>Login
-                        </a>
-                        <a href="{% url 'accounts:register' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            <i class="fas fa-user-plus mr-1"></i>Register
-                        </a>
+                        <div class="flex items-center gap-3">
+                            <a href="{% url 'accounts:login' %}" class="px-5 py-2.5 text-slate-600 hover:text-blue-600 font-bold text-sm transition-colors">
+                                Sign In
+                            </a>
+                            <a href="{% url 'accounts:register' %}" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-sm shadow-lg shadow-blue-500/25 transition-all active:scale-95">
+                                Join SmartCare
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -57,6 +91,16 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
+        {% if request.path != '/' %}
+            <div class="mb-6">
+                <button onclick="window.history.back()" 
+                        class="group flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all duration-300 font-medium text-sm">
+                    <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                    Back
+                </button>
+            </div>
+        {% endif %}
+        
         {% block content %}
         {% endblock %}
     </main>
