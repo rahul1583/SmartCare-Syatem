@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.views.generic import TemplateView, ListView, UpdateView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -15,10 +16,8 @@ from datetime import datetime, timedelta
 from .models import User, PatientProfile, DoctorProfile
 from .forms import UserRegistrationForm, PatientProfileForm, DoctorProfileForm, UserUpdateForm
 from appointments.models import Appointment
-from appointments.utils import cancel_expired_pending_appointments
 from prescriptions.models import Prescription
 from billing.models import Bill
-from medical_records.models import MedicalRecord
 import os
 
 def _google_login_enabled():
@@ -326,9 +325,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 def dashboard_view(request):
     user = request.user
     
-    # Automatically cancel expired pending appointments
-    cancel_expired_pending_appointments()
-    
     # Debug: Print user role information
     print(f"DashboardView - User: {user.email}, Role: {user.role}, is_admin: {user.is_admin}")
     
@@ -363,32 +359,11 @@ def dashboard_view(request):
         ).order_by('-date_time')[:5]
         context['recent_appointments'] = recent_appointments
         
-        # Get recent prescriptions (last 24 hours)
-        last_24h = timezone.now() - timedelta(hours=24)
+        # Get recent prescriptions
         recent_prescriptions = Prescription.objects.filter(
-            doctor=user,
-            created_at__gte=last_24h
+            doctor=user
         ).order_by('-created_at')[:5]
-        context['prescriptions'] = recent_prescriptions
-        
-        # Get recent bills with payment information (last 24 hours)
-        last_24h = timezone.now() - timedelta(hours=24)
-        recent_bills = Bill.objects.filter(
-            doctor=user,
-            created_at__gte=last_24h
-        ).order_by('-created_at')[:5]
-        
-        bills_with_payments = []
-        for bill in recent_bills:
-            paid_amount = bill.get_paid_amount()
-            remaining_balance = bill.get_remaining_balance()
-            bills_with_payments.append({
-                'bill': bill,
-                'paid_amount': paid_amount,
-                'remaining_balance': remaining_balance,
-                'is_fully_paid': remaining_balance <= 0
-            })
-        context['bills_with_payments'] = bills_with_payments
+        context['recent_prescriptions'] = recent_prescriptions
         
         # Get statistics
         total_appointments = Appointment.objects.filter(doctor=user).count()
@@ -413,9 +388,6 @@ def patient_dashboard_view(request):
         messages.error(request, 'Access denied. This page is for patients only.')
         return redirect('accounts:dashboard')
     
-    # Automatically cancel expired pending appointments
-    cancel_expired_pending_appointments()
-    
     # Get upcoming appointments
     now = timezone.now()
     upcoming_appointments = Appointment.objects.filter(
@@ -430,41 +402,16 @@ def patient_dashboard_view(request):
         is_active=True
     ).select_related('doctor_profile').order_by('doctor_profile__specialization')[:6]
     
-    # Get recent prescriptions (last 24 hours)
-    last_24h = timezone.now() - timedelta(hours=24)
+    # Get recent prescriptions
     recent_prescriptions = Prescription.objects.filter(
-        patient=request.user,
-        created_at__gte=last_24h
-    ).select_related('doctor').order_by('-created_at')[:5]
-    
-    # Get recent bills with payment information (last 24 hours)
-    last_24h = timezone.now() - timedelta(hours=24)
-    recent_bills = Bill.objects.filter(
-        patient=request.user,
-        created_at__gte=last_24h
-    ).order_by('-created_at')[:5]
-    
-    bills_with_payments = []
-    for bill in recent_bills:
-        paid_amount = bill.get_paid_amount()
-        remaining_balance = bill.get_remaining_balance()
-        bills_with_payments.append({
-            'bill': bill,
-            'paid_amount': paid_amount,
-            'remaining_balance': remaining_balance,
-            'is_fully_paid': remaining_balance <= 0
-        })
+        patient=request.user
+    ).select_related('doctor').order_by('-created_at')[:3]
     
     # Get patient profile
     try:
         profile = request.user.patient_profile
     except:
         profile = None
-    
-    # Get recent medical records (last 5)
-    medical_records = MedicalRecord.objects.filter(
-        patient=request.user
-    ).select_related('doctor').order_by('-created_at')[:5]
     
     # Calculate statistics
     total_appointments = Appointment.objects.filter(patient=request.user).count()
@@ -478,8 +425,6 @@ def patient_dashboard_view(request):
         'upcoming_appointments': upcoming_appointments,
         'available_doctors': available_doctors,
         'recent_prescriptions': recent_prescriptions,
-        'bills_with_payments': bills_with_payments,
-        'medical_records': medical_records,
         'profile': profile,
         'total_appointments': total_appointments,
         'completed_appointments': completed_appointments,
@@ -498,13 +443,11 @@ def admin_dashboard_view(request):
         messages.error(request, 'Access denied! Admin access required.')
         return redirect('accounts:dashboard')
 
-    # Automatically cancel expired pending appointments
-    cancel_expired_pending_appointments()
-
     # Core counts
     total_users = User.objects.count()
     total_doctors = User.objects.filter(role='doctor').count()
     total_patients = User.objects.filter(role='patient').count()
+    total_prescriptions = Prescription.objects.count()
 
     # Revenue from billing (fallback to 0 on error)
     try:
@@ -519,6 +462,7 @@ def admin_dashboard_view(request):
         'total_users': total_users,
         'total_doctors': total_doctors,
         'total_patients': total_patients,
+        'total_prescriptions': total_prescriptions,
         'total_revenue': total_revenue,
         'system_health': 'Healthy',
         'server_uptime': '99.9%',
@@ -577,108 +521,28 @@ def admin_add_user_view(request):
     
     return render(request, 'accounts/admin_add_user.html', {'form': form})
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-from django.core.serializers.json import DjangoJSONEncoder
-import json
-
-@login_required
-@require_GET
-def admin_user_details_view(request, user_id):
-    """API endpoint to get user details for admin"""
-    if not request.user.is_admin:
-        return JsonResponse({'success': False, 'error': 'Access denied'})
-    
-    try:
-        # Use select_related to fetch profile data efficiently
-        user = User.objects.select_related('doctor_profile', 'patient_profile').get(id=user_id)
-        
-        # Get unread notifications count
-        from notifications.models import Notification
-        unread_notifications = Notification.objects.filter(
-            recipient=user, 
-            is_read=False
-        ).count()
-        
-        # Prepare user data
-        user_data = {
-            'id': user.id,
-            'email': user.email,
-            'full_name': user.get_full_name(),
-            'role': user.role,
-            'is_active': user.is_active,
-            'date_joined': user.date_joined.isoformat(),
-            'last_login': user.last_login.isoformat() if user.last_login else None,
-            'unread_notifications': unread_notifications,
-        }
-        
-        # Add role-specific profile data
-        if user.role == 'doctor':
-            if hasattr(user, 'doctor_profile') and user.doctor_profile:
-                user_data['doctor_profile'] = {
-                    'specialization': user.doctor_profile.specialization,
-                    'license_number': getattr(user.doctor_profile, 'license_number', None),
-                    'experience': getattr(user.doctor_profile, 'experience', None),
-                }
-            else:
-                user_data['doctor_profile'] = None
-        
-        if user.role == 'patient':
-            if hasattr(user, 'patient_profile') and user.patient_profile:
-                user_data['patient_profile'] = {
-                    'date_of_birth': user.patient_profile.date_of_birth.isoformat() if user.patient_profile.date_of_birth else None,
-                    'gender': user.patient_profile.get_gender_display() if user.patient_profile.gender else None,
-                    'blood_group': user.patient_profile.blood_group,
-                    'address': user.patient_profile.address,
-                    'emergency_contact': user.patient_profile.emergency_contact,
-                    'medical_history': user.patient_profile.medical_history,
-                    'allergies': user.patient_profile.allergies,
-                }
-            else:
-                user_data['patient_profile'] = None
-        
-        return JsonResponse({'success': True, 'user': user_data})
-        
-    except User.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'User not found'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
 @login_required
 def admin_users_view(request):
     if not request.user.is_admin:
         messages.error(request, 'Access denied!')
         return redirect('accounts:dashboard')
     
-    from notifications.models import Notification
+    role_filter = request.GET.get('role', 'all')
     
-    # Get all users with their notification counts
-    users = User.objects.all()
+    if role_filter == 'all':
+        users_list = User.objects.all().order_by('-date_joined')
+    else:
+        users_list = User.objects.filter(role=role_filter).order_by('-date_joined')
     
-    # Add notification count to each user
-    for user in users:
-        user.unread_notifications = Notification.objects.filter(
-            recipient=user, 
-            is_read=False
-        ).count()
-    
-    # Separate users by role
-    admins = users.filter(role='admin')
-    doctors = users.filter(role='doctor').select_related('doctor_profile')
-    patients = users.filter(role='patient').select_related('patient_profile')
-    
-    context = {
-        'users': users,
-        'admins': admins,
-        'doctors': doctors,
-        'patients': patients,
-    }
-    
-    return render(request, 'accounts/admin_dashboard_users.html', context)
+    paginator = Paginator(users_list, 5)  # Show 5 users per page
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
+        
+    return render(request, 'accounts/admin_users.html', {'users': users, 'role_filter': role_filter})
 
 @login_required
 def admin_dashboard_users_view(request):
-    """Dashboard users page with separated roles"""
+    """Dashboard users page with notification counts"""
     if not request.user.is_admin:
         messages.error(request, 'Access denied!')
         return redirect('accounts:dashboard')
@@ -695,16 +559,8 @@ def admin_dashboard_users_view(request):
             is_read=False
         ).count()
     
-    # Separate users by role
-    admins = users.filter(role='admin')
-    doctors = users.filter(role='doctor').select_related('doctor_profile')
-    patients = users.filter(role='patient').select_related('patient_profile')
-    
     context = {
         'users': users,
-        'admins': admins,
-        'doctors': doctors,
-        'patients': patients,
     }
     
     return render(request, 'accounts/admin_dashboard_users.html', context)

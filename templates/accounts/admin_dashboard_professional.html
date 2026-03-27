@@ -3,36 +3,40 @@
 {% block title %}Admin Dashboard - SmartCare System{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-    <!-- Professional Header -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 shadow-2xl">
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.15)_0%,_transparent_50%)] pointer-events-none"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(56,189,248,0.08)_0%,_transparent_50%)] pointer-events-none"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+<div class="min-h-screen bg-[#F0F2F5]">
+    <!-- Image-inspired Professional Header (Precise Match) -->
+    <div class="bg-[#1B1B33] border-b border-white/5 relative">
+        <!-- Subtle Glow Effects -->
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <!-- Logo & Brand -->
-                <div class="flex items-center gap-4">
-                    <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-2 ring-white/10">
-                        <i class="fas fa-hospital text-white text-2xl"></i>
+                <div class="flex items-center gap-5">
+                    <div class="flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_8px_30px_rgb(59,130,246,0.3)] border border-white/10">
+                        <i class="fas fa-id-card-alt text-white text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">SmartCare Admin</h1>
-                        <p class="text-slate-400 text-sm font-medium mt-0.5">Healthcare Management System</p>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">SmartCare Admin</h1>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Healthcare Management System</p>
                     </div>
                 </div>
                 
-                <!-- Right Section: Status & User -->
-                <div class="flex flex-wrap items-center gap-6">
-                    <!-- System Status -->
-                    <div class="flex items-center gap-4 px-5 py-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse"></div>
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-widest">System Status</span>
+                <!-- System Status Section (Exact Image Match) -->
+                <div class="flex items-center">
+                    <div class="flex items-center gap-6 px-7 py-3 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div class="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_15px_#10B981]"></div>
+                                <div class="absolute inset-0 w-2.5 h-2.5 rounded-full bg-[#10B981] animate-ping opacity-40"></div>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">System Status</span>
                         </div>
-                        <div class="h-4 w-px bg-white/20"></div>
-                        <div>
-                            <div class="text-white font-semibold">{{ system_health }}</div>
-                            <div class="text-xs text-slate-400">Uptime {{ server_uptime }}</div>
+                        <div class="h-6 w-px bg-white/10"></div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-black text-white leading-tight tracking-wide">{{ system_health|default:"Healthy" }}</span>
+                            <span class="text-[10px] text-slate-500 font-bold tracking-wider mt-0.5">Uptime {{ server_uptime|default:"99.9%" }}</span>
                         </div>
                     </div>
                 </div>
@@ -40,141 +44,239 @@
         </div>
     </div>
 
-    <!-- Main Dashboard Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Users Card -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div class="p-6">
+    <!-- Dashboard Body -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <!-- Stats Grid (Premium Styling) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+            <!-- Total Users -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-20px_rgba(59,130,246,0.15)] transition-all duration-500 group hover:-translate-y-2 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-12 -mt-12 group-hover:bg-blue-100 transition-colors"></div>
+                <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-users text-white text-xl"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                            <i class="fas fa-users text-xl"></i>
                         </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-bold text-gray-900">{{ total_users }}</div>
-                            <div class="text-sm text-gray-500">Total Users</div>
-                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-1">{{ total_users }}</h3>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-nowrap">Total Users</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Total Doctors Card -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div class="p-6">
+            <!-- Total Doctors -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-20px_rgba(16,185,129,0.15)] transition-all duration-500 group hover:-translate-y-2 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full -mr-12 -mt-12 group-hover:bg-emerald-100 transition-colors"></div>
+                <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-user-md text-white text-xl"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                            <i class="fas fa-user-md text-xl"></i>
                         </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-bold text-gray-900">{{ total_doctors }}</div>
-                            <div class="text-sm text-gray-500">Total Doctors</div>
-                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-1">{{ total_doctors }}</h3>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-nowrap">Doctors</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Total Patients Card -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div class="p-6">
+            <!-- Total Patients -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-20px_rgba(139,92,246,0.15)] transition-all duration-500 group hover:-translate-y-2 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-violet-50/50 rounded-full -mr-12 -mt-12 group-hover:bg-violet-100 transition-colors"></div>
+                <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-user-injured text-white text-xl"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                            <i class="fas fa-user-injured text-xl"></i>
                         </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-bold text-gray-900">{{ total_patients }}</div>
-                            <div class="text-sm text-gray-500">Total Patients</div>
-                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-1">{{ total_patients }}</h3>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-nowrap">Patients</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Revenue Card -->
-            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div class="p-6">
+            <!-- Total Prescriptions -->
+            <a href="{% url 'prescriptions:list' %}" class="bg-white rounded-3xl p-6 border border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-20px_rgba(236,72,153,0.15)] transition-all duration-500 group hover:-translate-y-2 relative overflow-hidden block">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-pink-50/50 rounded-full -mr-12 -mt-12 group-hover:bg-pink-100 transition-colors"></div>
+                <div class="relative z-10">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <i class="fas fa-rupee-sign text-white text-xl"></i>
+                        <div class="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-600 group-hover:bg-pink-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                            <i class="fas fa-prescription text-xl"></i>
                         </div>
-                        <div class="text-right">
-                            <div class="text-3xl font-bold text-gray-900">Rs. {{ total_revenue }}</div>
-                            <div class="text-sm text-gray-500">Total Revenue</div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-3xl font-black text-slate-900 tracking-tight mb-1">{{ total_prescriptions }}</h3>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-nowrap">Prescriptions</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Revenue -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-20px_rgba(245,158,11,0.15)] transition-all duration-500 group hover:-translate-y-2 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50/50 rounded-full -mr-12 -mt-12 group-hover:bg-amber-100 transition-colors"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                            <i class="fas fa-rupee-sign text-xl"></i>
                         </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight mb-1">Rs. {{ total_revenue }}</h3>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-nowrap">Revenue</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions Section -->
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-200">
-            <div class="p-6">
-                <div class="flex items-center mb-6">
-                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mr-4">
-                        <i class="fas fa-rocket text-white text-xl"></i>
+        <!-- Professional Management Grid -->
+        <div class="mb-14">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-black text-slate-900 flex items-center gap-3">
+                    <span class="w-2 h-8 bg-indigo-600 rounded-full"></span>
+                    Management Portal
+                </h2>
+                <div class="h-px flex-1 bg-slate-200 ml-6"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <!-- User Control -->
+                <a href="{% url 'accounts:admin_users' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                        <i class="fas fa-users-cog text-2xl"></i>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Quick Actions</h2>
+                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">User Control</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Roles & Access</p>
+                </a>
+
+                <!-- Schedule -->
+                <a href="{% url 'appointments:appointment_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                        <i class="fas fa-calendar-alt text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors">Appointments</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Bookings Tracker</p>
+                </a>
+
+                <!-- Pharmacy -->
+                <a href="{% url 'prescriptions:list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                    <div class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-6 group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                        <i class="fas fa-prescription text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-violet-600 transition-colors">Prescriptions</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Medication Logs</p>
+                </a>
+
+                <!-- Financials -->
+                <a href="{% url 'billing:bill_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                        <i class="fas fa-file-invoice-dollar text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-amber-600 transition-colors">Financials</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Invoices & Tax</p>
+                </a>
+
+                <!-- Archives -->
+                <a href="{% url 'medical_records:medical_record_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                        <i class="fas fa-folder-open text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-rose-600 transition-colors">Medical Vault</h4>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Central Records</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activities Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Latest Appointments -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
+                        <i class="fas fa-clock text-indigo-500"></i>
+                        Recent Appointments
+                    </h3>
+                    <a href="{% url 'appointments:appointment_list' %}" class="text-xs font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest px-3 py-1.5 bg-indigo-50 rounded-lg transition-colors">See All</a>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Manage Users -->
-                    <a href="{% url 'accounts:admin_users' %}" 
-                       class="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 hover:border-blue-400">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300">
-                                <i class="fas fa-users text-white text-2xl"></i>
+                <div class="p-8">
+                    {% if recent_appointments %}
+                        <div class="space-y-5">
+                            {% for appt in recent_appointments|slice:":4" %}
+                            <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
+                                        {{ appt.patient.username|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{{ appt.patient.get_full_name|default:appt.patient.username }}</div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dr. {{ appt.doctor.get_full_name|default:appt.doctor.username }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-black text-slate-900">{{ appt.date_time|date:"M d, Y" }}</div>
+                                    <div class="mt-1">
+                                        <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter
+                                            {% if appt.status == 'confirmed' %}bg-emerald-100 text-emerald-700
+                                            {% elif appt.status == 'pending' %}bg-amber-100 text-amber-700
+                                            {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                            {{ appt.status }}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="font-semibold text-gray-900 group-hover:text-blue-700">Manage Users</div>
-                            <div class="text-sm text-gray-500">Add, edit, delete users</div>
+                            {% endfor %}
                         </div>
-                    </a>
+                    {% else %}
+                        <div class="text-center py-10">
+                            <i class="fas fa-inbox text-slate-200 text-5xl mb-4"></i>
+                            <p class="text-slate-400 font-bold text-sm">No recent appointments</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
 
-                    <!-- Appointments -->
-                    <a href="{% url 'appointments:appointment_list' %}" 
-                       class="group bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 hover:border-green-400">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mb-3 group-hover:from-green-600 group-hover:to-green-700 transition-all duration-300">
-                                <i class="fas fa-calendar-check text-white text-2xl"></i>
+            <!-- Recent Billing -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
+                        <i class="fas fa-receipt text-amber-500"></i>
+                        Recent Transactions
+                    </h3>
+                    <a href="{% url 'billing:bill_list' %}" class="text-xs font-black text-amber-600 hover:text-amber-800 uppercase tracking-widest px-3 py-1.5 bg-amber-50 rounded-lg transition-colors">See All</a>
+                </div>
+                <div class="p-8">
+                    {% if bills_with_payments %}
+                        <div class="space-y-5">
+                            {% for bill_data in bills_with_payments|slice:":4" %}
+                            <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+                                        <i class="fas fa-file-invoice text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors">Bill #{{ bill_data.bill.id }}</div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ bill_data.bill.patient.get_full_name|default:bill_data.bill.patient.username }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-black text-slate-900">Rs. {{ bill_data.bill.total_amount }}</div>
+                                    <div class="mt-1">
+                                        <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter
+                                            {% if bill_data.is_fully_paid %}bg-emerald-100 text-emerald-700
+                                            {% else %}bg-rose-100 text-rose-700{% endif %}">
+                                            {% if bill_data.is_fully_paid %}Paid{% else %}Pending{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="font-semibold text-gray-900 group-hover:text-green-700">Appointments</div>
-                            <div class="text-sm text-gray-500">View all appointments</div>
+                            {% endfor %}
                         </div>
-                    </a>
-
-                    <!-- Prescriptions -->
-                    <a href="{% url 'prescriptions:list' %}" 
-                       class="group bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 hover:border-purple-400">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mb-3 group-hover:from-purple-600 group-hover:to-purple-700 transition-all duration-300">
-                                <i class="fas fa-prescription text-white text-2xl"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 group-hover:text-purple-700">Prescriptions</div>
-                            <div class="text-sm text-gray-500">Manage prescriptions</div>
+                    {% else %}
+                        <div class="text-center py-10">
+                            <i class="fas fa-receipt text-slate-200 text-5xl mb-4"></i>
+                            <p class="text-slate-400 font-bold text-sm">No recent transactions</p>
                         </div>
-                    </a>
-
-                    <!-- Billing -->
-                    <a href="{% url 'billing:bill_list' %}" 
-                       class="group bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 hover:border-yellow-400">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mb-3 group-hover:from-yellow-600 group-hover:to-yellow-700 transition-all duration-300">
-                                <i class="fas fa-file-invoice-dollar text-white text-2xl"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 group-hover:text-yellow-700">Billing</div>
-                            <div class="text-sm text-gray-500">View invoices & payments</div>
-                        </div>
-                    </a>
-
-                    <!-- Medical Records -->
-                    <a href="{% url 'medical_records:medical_record_list' %}" 
-                       class="group bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 hover:border-red-400">
-                        <div class="flex flex-col items-center text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mb-3 group-hover:from-red-600 group-hover:to-red-700 transition-all duration-300">
-                                <i class="fas fa-notes-medical text-white text-2xl"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 group-hover:text-red-700">Medical Records</div>
-                            <div class="text-sm text-gray-500">Patient records</div>
-                        </div>
-                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
