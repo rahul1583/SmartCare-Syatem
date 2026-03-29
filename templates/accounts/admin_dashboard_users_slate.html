@@ -4,15 +4,15 @@
 
 {% block content %}
 <!-- Professional Header -->
-<div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+<div class="bg-slate-800 text-white">
     <div class="container mx-auto px-6 py-8">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold">User Management</h1>
-                <p class="text-blue-100 mt-1">System administration and user management</p>
+                <p class="text-slate-300 mt-1">System administration and user management</p>
             </div>
             <div class="text-right">
-                <div class="text-sm text-blue-100">Total Users</div>
+                <div class="text-sm text-slate-400">Total Users</div>
                 <div class="text-2xl font-bold">{{ users|length }}</div>
             </div>
         </div>
@@ -22,50 +22,50 @@
 <div class="container mx-auto px-6 py-8">
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-700 font-medium">Administrators</span>
+                <span class="text-slate-600 font-medium">Administrators</span>
                 <span class="text-2xl">👑</span>
             </div>
-            <div class="text-2xl font-bold text-blue-900">{{ admins|length }}</div>
+            <div class="text-2xl font-bold text-slate-900">{{ admins|length }}</div>
         </div>
         
-        <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-700 font-medium">Doctors</span>
+                <span class="text-slate-600 font-medium">Doctors</span>
                 <span class="text-2xl">👨‍⚕️</span>
             </div>
-            <div class="text-2xl font-bold text-blue-900">{{ doctors|length }}</div>
+            <div class="text-2xl font-bold text-slate-900">{{ doctors|length }}</div>
         </div>
         
-        <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-700 font-medium">Patients</span>
+                <span class="text-slate-600 font-medium">Patients</span>
                 <span class="text-2xl">👥</span>
             </div>
-            <div class="text-2xl font-bold text-blue-900">{{ patients|length }}</div>
+            <div class="text-2xl font-bold text-slate-900">{{ patients|length }}</div>
         </div>
         
-        <div class="bg-white border border-blue-200 rounded-lg p-6 shadow-sm">
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-blue-700 font-medium">Total</span>
+                <span class="text-slate-600 font-medium">Total</span>
                 <span class="text-2xl">📊</span>
             </div>
-            <div class="text-2xl font-bold text-blue-900">{{ users|length }}</div>
+            <div class="text-2xl font-bold text-slate-900">{{ users|length }}</div>
         </div>
     </div>
 
     <!-- Search and Filter -->
-    <div class="bg-white border border-blue-200 rounded-lg p-6 mb-8 shadow-sm">
+    <div class="bg-white border border-slate-200 rounded-lg p-6 mb-8">
         <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
                 <input type="text" 
                        id="userSearch" 
                        placeholder="Search users..." 
-                       class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-slate-500">
             </div>
             <div>
-                <select id="roleFilter" class="px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                <select id="roleFilter" class="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-slate-500">
                     <option value="">All Roles</option>
                     <option value="admin">Administrators</option>
                     <option value="doctor">Doctors</option>
@@ -76,39 +76,39 @@
     </div>
 
     <!-- Administrators Section -->
-    <div class="bg-white border border-blue-200 rounded-lg overflow-hidden mb-8 shadow-sm" data-role="admin">
-        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200">
-            <h3 class="text-lg font-semibold text-blue-900">Administrators</h3>
-            <p class="text-sm text-blue-700">System administrators with full access</p>
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden mb-8" data-role="admin">
+        <div class="bg-slate-100 px-6 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-900">Administrators</h3>
+            <p class="text-sm text-slate-600">System administrators with full access</p>
         </div>
         
         {% if admins %}
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-blue-50 border-b border-blue-200">
+                    <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Notifications</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-blue-100">
+                    <tbody class="divide-y divide-slate-200">
                         {% for user in admins %}
-                            <tr class="hover:bg-blue-50">
+                            <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-sm font-medium text-blue-700 mr-3">
+                                        <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-sm font-medium text-slate-600 mr-3">
                                             {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
                                         </div>
                                         <div>
-                                            <div class="font-medium text-blue-900">{{ user.get_full_name|default:user.email }}</div>
-                                            <div class="text-sm text-blue-600">ID: {{ user.id }}</div>
+                                            <div class="font-medium text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: {{ user.id }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-blue-800">{{ user.email }}</td>
+                                <td class="px-6 py-4 text-slate-700">{{ user.email }}</td>
                                 <td class="px-6 py-4">
                                     {% if user.is_active %}
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -126,7 +126,7 @@
                                             {{ user.unread_notifications }}
                                         </span>
                                     {% else %}
-                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-600 min-w-[2rem]">
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-500 min-w-[2rem]">
                                             0
                                         </span>
                                     {% endif %}
@@ -144,53 +144,53 @@
             </div>
         {% else %}
             <div class="text-center py-12">
-                <div class="text-blue-400">No administrators found</div>
+                <div class="text-slate-400">No administrators found</div>
             </div>
         {% endif %}
     </div>
 
     <!-- Doctors Section -->
-    <div class="bg-white border border-blue-200 rounded-lg overflow-hidden mb-8 shadow-sm" data-role="doctor">
-        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200">
-            <h3 class="text-lg font-semibold text-blue-900">Doctors</h3>
-            <p class="text-sm text-blue-700">Medical practitioners and healthcare providers</p>
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden mb-8" data-role="doctor">
+        <div class="bg-slate-100 px-6 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-900">Doctors</h3>
+            <p class="text-sm text-slate-600">Medical practitioners and healthcare providers</p>
         </div>
         
         {% if doctors %}
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-blue-50 border-b border-blue-200">
+                    <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Specialization</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Notifications</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Specialization</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-blue-100">
+                    <tbody class="divide-y divide-slate-200">
                         {% for user in doctors %}
-                            <tr class="hover:bg-blue-50">
+                            <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-sm font-medium text-blue-700 mr-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600 mr-3">
                                             {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
                                         </div>
                                         <div>
-                                            <div class="font-medium text-blue-900">{{ user.get_full_name|default:user.email }}</div>
-                                            <div class="text-sm text-blue-600">ID: {{ user.id }}</div>
+                                            <div class="font-medium text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: {{ user.id }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-blue-800">{{ user.email }}</td>
+                                <td class="px-6 py-4 text-slate-700">{{ user.email }}</td>
                                 <td class="px-6 py-4">
                                     {% if user.doctor_profile.specialization %}
                                         <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                             {{ user.doctor_profile.specialization }}
                                         </span>
                                     {% else %}
-                                        <span class="text-blue-400 text-sm">Not specified</span>
+                                        <span class="text-slate-400 text-sm">Not specified</span>
                                     {% endif %}
                                 </td>
                                 <td class="px-6 py-4">
@@ -210,7 +210,7 @@
                                             {{ user.unread_notifications }}
                                         </span>
                                     {% else %}
-                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-600 min-w-[2rem]">
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-500 min-w-[2rem]">
                                             0
                                         </span>
                                     {% endif %}
@@ -228,53 +228,53 @@
             </div>
         {% else %}
             <div class="text-center py-12">
-                <div class="text-blue-400">No doctors found</div>
+                <div class="text-slate-400">No doctors found</div>
             </div>
         {% endif %}
     </div>
 
     <!-- Patients Section -->
-    <div class="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-sm" data-role="patient">
-        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200">
-            <h3 class="text-lg font-semibold text-blue-900">Patients</h3>
-            <p class="text-sm text-blue-700">Healthcare service recipients</p>
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden" data-role="patient">
+        <div class="bg-slate-100 px-6 py-4 border-b border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-900">Patients</h3>
+            <p class="text-sm text-slate-600">Healthcare service recipients</p>
         </div>
         
         {% if patients %}
             <div class="overflow-x-auto">
                 <table class="w-full">
-                    <thead class="bg-blue-50 border-b border-blue-200">
+                    <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Emergency Contact</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Notifications</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Emergency Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-blue-100">
+                    <tbody class="divide-y divide-slate-200">
                         {% for user in patients %}
-                            <tr class="hover:bg-blue-50">
+                            <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-sm font-medium text-blue-700 mr-3">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-sm font-medium text-green-600 mr-3">
                                             {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
                                         </div>
                                         <div>
-                                            <div class="font-medium text-blue-900">{{ user.get_full_name|default:user.email }}</div>
-                                            <div class="text-sm text-blue-600">ID: {{ user.id }}</div>
+                                            <div class="font-medium text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: {{ user.id }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-blue-800">{{ user.email }}</td>
+                                <td class="px-6 py-4 text-slate-700">{{ user.email }}</td>
                                 <td class="px-6 py-4">
                                     {% if user.patient_profile.emergency_contact %}
-                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-700">
                                             {{ user.patient_profile.emergency_contact }}
                                         </span>
                                     {% else %}
-                                        <span class="text-blue-400 text-sm">Not provided</span>
+                                        <span class="text-slate-400 text-sm">Not provided</span>
                                     {% endif %}
                                 </td>
                                 <td class="px-6 py-4">
@@ -294,7 +294,7 @@
                                             {{ user.unread_notifications }}
                                         </span>
                                     {% else %}
-                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-600 min-w-[2rem]">
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-500 min-w-[2rem]">
                                             0
                                         </span>
                                     {% endif %}
@@ -312,7 +312,7 @@
             </div>
         {% else %}
             <div class="text-center py-12">
-                <div class="text-blue-400">No patients found</div>
+                <div class="text-slate-400">No patients found</div>
             </div>
         {% endif %}
     </div>
@@ -324,8 +324,8 @@
         <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeUserDetails()"></div>
         
         <div class="relative bg-white rounded-lg max-w-2xl w-full mx-auto shadow-lg">
-            <div class="px-6 py-4 border-b border-blue-200">
-                <h3 class="text-lg font-semibold text-blue-900">User Details</h3>
+            <div class="px-6 py-4 border-b border-slate-200">
+                <h3 class="text-lg font-semibold text-slate-900">User Details</h3>
             </div>
             
             <div class="px-6 py-4">
@@ -334,9 +334,9 @@
                 </div>
             </div>
             
-            <div class="px-6 py-4 border-t border-blue-200 flex justify-end">
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end">
                 <button onclick="closeUserDetails()" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
                     Close
                 </button>
             </div>
@@ -397,46 +397,46 @@ function displayUserDetails(user) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Basic Information -->
             <div class="space-y-4">
-                <h4 class="font-medium text-blue-900">Basic Information</h4>
+                <h4 class="font-medium text-slate-900">Basic Information</h4>
                 <div class="space-y-2">
                     <div>
-                        <span class="text-sm text-blue-600">Name:</span>
-                        <p class="font-medium text-blue-900">${user.full_name || 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">Name:</span>
+                        <p class="font-medium text-slate-900">${user.full_name || 'Not provided'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Email:</span>
-                        <p class="font-medium text-blue-900">${user.email}</p>
+                        <span class="text-sm text-slate-600">Email:</span>
+                        <p class="font-medium text-slate-900">${user.email}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">User ID:</span>
-                        <p class="font-medium text-blue-900">#${user.id}</p>
+                        <span class="text-sm text-slate-600">User ID:</span>
+                        <p class="font-medium text-slate-900">#${user.id}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Role:</span>
-                        <p class="font-medium text-blue-900">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
+                        <span class="text-sm text-slate-600">Role:</span>
+                        <p class="font-medium text-slate-900">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Status:</span>
-                        <p class="font-medium text-blue-900">${user.is_active ? 'Active' : 'Inactive'}</p>
+                        <span class="text-sm text-slate-600">Status:</span>
+                        <p class="font-medium text-slate-900">${user.is_active ? 'Active' : 'Inactive'}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Account Information -->
             <div class="space-y-4">
-                <h4 class="font-medium text-blue-900">Account Information</h4>
+                <h4 class="font-medium text-slate-900">Account Information</h4>
                 <div class="space-y-2">
                     <div>
-                        <span class="text-sm text-blue-600">Date Joined:</span>
-                        <p class="font-medium text-blue-900">${new Date(user.date_joined).toLocaleDateString()}</p>
+                        <span class="text-sm text-slate-600">Date Joined:</span>
+                        <p class="font-medium text-slate-900">${new Date(user.date_joined).toLocaleDateString()}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Last Login:</span>
-                        <p class="font-medium text-blue-900">${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never logged in'}</p>
+                        <span class="text-sm text-slate-600">Last Login:</span>
+                        <p class="font-medium text-slate-900">${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never logged in'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Unread Notifications:</span>
-                        <p class="font-medium text-blue-900">${user.unread_notifications}</p>
+                        <span class="text-sm text-slate-600">Unread Notifications:</span>
+                        <p class="font-medium text-slate-900">${user.unread_notifications}</p>
                     </div>
                 </div>
             </div>
@@ -444,19 +444,19 @@ function displayUserDetails(user) {
             ${user.role === 'doctor' && user.doctor_profile ? `
             <!-- Doctor Profile -->
             <div class="space-y-4">
-                <h4 class="font-medium text-blue-900">Doctor Profile</h4>
+                <h4 class="font-medium text-slate-900">Doctor Profile</h4>
                 <div class="space-y-2">
                     <div>
-                        <span class="text-sm text-blue-600">Specialization:</span>
-                        <p class="font-medium text-blue-900">${user.doctor_profile.specialization || 'Not specified'}</p>
+                        <span class="text-sm text-slate-600">Specialization:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.specialization || 'Not specified'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">License Number:</span>
-                        <p class="font-medium text-blue-900">${user.doctor_profile.license_number || 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">License Number:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.license_number || 'Not provided'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Experience:</span>
-                        <p class="font-medium text-blue-900">${user.doctor_profile.experience || 'Not specified'}</p>
+                        <span class="text-sm text-slate-600">Experience:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.experience || 'Not specified'}</p>
                     </div>
                 </div>
             </div>
@@ -465,23 +465,23 @@ function displayUserDetails(user) {
             ${user.role === 'patient' && user.patient_profile ? `
             <!-- Patient Profile -->
             <div class="space-y-4">
-                <h4 class="font-medium text-blue-900">Patient Profile</h4>
+                <h4 class="font-medium text-slate-900">Patient Profile</h4>
                 <div class="space-y-2">
                     <div>
-                        <span class="text-sm text-blue-600">Date of Birth:</span>
-                        <p class="font-medium text-blue-900">${user.patient_profile.date_of_birth ? new Date(user.patient_profile.date_of_birth).toLocaleDateString() : 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">Date of Birth:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile.date_of_birth ? new Date(user.patient_profile.date_of_birth).toLocaleDateString() : 'Not provided'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Gender:</span>
-                        <p class="font-medium text-blue-900">${user.patient_profile.gender || 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">Gender:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile.gender || 'Not provided'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Blood Group:</span>
-                        <p class="font-medium text-blue-900">${user.patient_profile.blood_group || 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">Blood Group:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile.blood_group || 'Not provided'}</p>
                     </div>
                     <div>
-                        <span class="text-sm text-blue-600">Emergency Contact:</span>
-                        <p class="font-medium text-blue-900">${user.patient_profile.emergency_contact || 'Not provided'}</p>
+                        <span class="text-sm text-slate-600">Emergency Contact:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile.emergency_contact || 'Not provided'}</p>
                     </div>
                 </div>
             </div>

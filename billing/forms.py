@@ -37,10 +37,13 @@ class PaymentForm(forms.ModelForm):
     
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
-        if self.bill and amount > 0:
-            remaining_balance = self.bill.total_amount - self.bill.get_paid_amount()
-            if amount > remaining_balance:
-                raise forms.ValidationError(f'Payment amount cannot exceed remaining balance of Rs. {remaining_balance}')
+        if amount is not None and amount > 0:
+            if self.bill:
+                remaining_balance = self.bill.total_amount - self.bill.get_paid_amount()
+                if amount > remaining_balance:
+                    raise forms.ValidationError(f'Payment amount cannot exceed remaining balance of Rs. {remaining_balance}')
+        elif amount is not None and amount <= 0:
+            raise forms.ValidationError('Payment amount must be greater than 0.')
         return amount
 
 class BillForm(forms.ModelForm):

@@ -1,5 +1,7 @@
 from django.urls import path
+from django.shortcuts import render
 from . import views
+from . import simple_payment
 
 app_name = 'billing'
 
@@ -13,6 +15,8 @@ urlpatterns = [
     
     # Payment Processing
     path('<int:bill_id>/pay/', views.payment_view, name='payment'),
+    path('<int:bill_id>/simple-pay/', simple_payment.simple_payment_view, name='simple_payment'),
+    path('test-payment/', views.test_payment_view, name='test_payment'),
     path('payment/success/', views.payment_success_view, name='payment_success'),
     path('payment/failed/', views.payment_failed_view, name='payment_failed'),
     

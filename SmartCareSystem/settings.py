@@ -176,7 +176,6 @@ SITE_ID = 1
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.SmartCareSocialAccountAdapter'
 ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_FIELDS = ['email', 'first_name', 'last_name']
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
@@ -187,6 +186,17 @@ LOGOUT_REDIRECT_URL = '/'
 
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '').strip()
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '').strip()
+
+# Site URL for payment gateways and other services
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
+
+# Payment Gateway Settings
+ESEWA_MERCHANT_CODE = os.getenv('ESEWA_MERCHANT_CODE', 'EPAYTEST')
+ESEWA_SUCCESS_URL = f"{SITE_URL}/billing/esewa/success/"
+ESEWA_FAILURE_URL = f"{SITE_URL}/billing/esewa/failure/"
+
+KHALTI_SECRET_KEY = os.getenv('KHALTI_SECRET_KEY', 'test_key')
+KHALTI_RETURN_URL = f"{SITE_URL}/billing/khalti/callback/"
 
 # Use modern plural APPS for allauth 65+
 # This prevents DoesNotExist and MultipleObjectsReturned errors

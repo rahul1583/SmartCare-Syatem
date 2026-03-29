@@ -1,0 +1,621 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- Professional Header -->
+<div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
+                    <span class="bg-white/20 p-3 rounded-xl">👥</span>
+                    User Management
+                </h1>
+                <p class="text-slate-300 text-lg">Comprehensive user administration and role management</p>
+            </div>
+            <div class="text-right bg-white/10 backdrop-blur-sm px-6 py-4 rounded-xl border border-white/20">
+                <div class="text-sm text-slate-300 mb-1">Total System Users</div>
+                <div class="text-3xl font-bold">{{ users|length }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8">
+    <!-- Statistics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Administrators Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-violet-700"></div>
+            <div class="w-12 h-12 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center text-white text-xl mb-4">
+                👑
+            </div>
+            <div class="text-3xl font-bold text-slate-900 mb-2">{{ admins|length }}</div>
+            <div class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Administrators</div>
+        </div>
+
+        <!-- Doctors Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-700"></div>
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center text-white text-xl mb-4">
+                👨‍⚕️
+            </div>
+            <div class="text-3xl font-bold text-slate-900 mb-2">{{ doctors|length }}</div>
+            <div class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Doctors</div>
+        </div>
+
+        <!-- Patients Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 to-emerald-700"></div>
+            <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl flex items-center justify-center text-white text-xl mb-4">
+                👥
+            </div>
+            <div class="text-3xl font-bold text-slate-900 mb-2">{{ patients|length }}</div>
+            <div class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Patients</div>
+        </div>
+
+        <!-- Total Users Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-600 to-slate-700"></div>
+            <div class="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 rounded-xl flex items-center justify-center text-white text-xl mb-4">
+                📊
+            </div>
+            <div class="text-3xl font-bold text-slate-900 mb-2">{{ users|length }}</div>
+            <div class="text-sm font-semibold text-slate-600 uppercase tracking-wider">Total Users</div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Toolbar -->
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
+        <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div class="relative flex-1 max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-slate-400"></i>
+                </div>
+                <input type="text" 
+                       id="userSearch" 
+                       placeholder="Search users by name or email..." 
+                       class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-slate-700">Filter by role:</label>
+                <select id="roleFilter" class="px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                    <option value="">All Users</option>
+                    <option value="admin">Administrators</option>
+                    <option value="doctor">Doctors</option>
+                    <option value="patient">Patients</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administrators Section -->
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-8" data-role="admin">
+        <div class="bg-gradient-to-r from-violet-600 to-violet-700 px-6 py-6">
+            <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                <i class="fas fa-user-shield"></i>
+                Administrators
+            </h3>
+            <p class="text-violet-100 mt-2">System administrators with full access and control privileges</p>
+        </div>
+        {% if admins %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">User Information</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Email Address</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Account Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        {% for user in admins %}
+                            <tr class="hover:bg-slate-50 transition-colors duration-200">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-violet-100 to-violet-200 rounded-xl flex items-center justify-center font-bold text-violet-700">
+                                            {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: #{{ user.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-slate-700 font-medium">{{ user.email }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.is_active %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.unread_notifications > 0 %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-red-500 text-white min-w-[3rem]">
+                                            {{ user.unread_notifications }}
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 min-w-[3rem]">
+                                            0
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button onclick="showUserDetails({{ user.id }})" 
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-shield text-3xl text-slate-400"></i>
+                </div>
+                <h4 class="text-xl font-semibold text-slate-700 mb-2">No Administrators Found</h4>
+                <p class="text-slate-500">System administrators will appear here once created</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Doctors Section -->
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-8" data-role="doctor">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-6">
+            <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                <i class="fas fa-user-md"></i>
+                Medical Practitioners
+            </h3>
+            <p class="text-blue-100 mt-2">Healthcare professionals providing medical services and patient care</p>
+        </div>
+        {% if doctors %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">User Information</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Email Address</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Specialization</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Account Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        {% for user in doctors %}
+                            <tr class="hover:bg-slate-50 transition-colors duration-200">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center font-bold text-blue-700">
+                                            {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: #{{ user.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-slate-700 font-medium">{{ user.email }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.doctor_profile.specialization %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800">
+                                            {{ user.doctor_profile.specialization }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-slate-400">Not specified</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.is_active %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.unread_notifications > 0 %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-red-500 text-white min-w-[3rem]">
+                                            {{ user.unread_notifications }}
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 min-w-[3rem]">
+                                            0
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button onclick="showUserDetails({{ user.id }})" 
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-md text-3xl text-slate-400"></i>
+                </div>
+                <h4 class="text-xl font-semibold text-slate-700 mb-2">No Doctors Found</h4>
+                <p class="text-slate-500">Medical practitioners will appear here once registered</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Patients Section -->
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden" data-role="patient">
+        <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-6">
+            <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                <i class="fas fa-user-injured"></i>
+                Patients
+            </h3>
+            <p class="text-emerald-100 mt-2">Healthcare service recipients and patients under medical care</p>
+        </div>
+        {% if patients %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">User Information</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Email Address</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Emergency Contact</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Account Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Notifications</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        {% for user in patients %}
+                            <tr class="hover:bg-slate-50 transition-colors duration-200">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center font-bold text-emerald-700">
+                                            {{ user.get_full_name|make_list|first|upper|default:user.email|make_list|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-900">{{ user.get_full_name|default:user.email }}</div>
+                                            <div class="text-sm text-slate-500">ID: #{{ user.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-slate-700 font-medium">{{ user.email }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.patient_profile.emergency_contact %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium bg-slate-100 text-slate-700">
+                                            📞 {{ user.patient_profile.emergency_contact }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-slate-400">No emergency contact</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.is_active %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+                                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                            Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if user.unread_notifications > 0 %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-red-500 text-white min-w-[3rem]">
+                                            {{ user.unread_notifications }}
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 min-w-[3rem]">
+                                            0
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button onclick="showUserDetails({{ user.id }})" 
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-injured text-3xl text-slate-400"></i>
+                </div>
+                <h4 class="text-xl font-semibold text-slate-700 mb-2">No Patients Found</h4>
+                <p class="text-slate-500">Patients will appear here once registered in the system</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('userSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const allRows = document.querySelectorAll('tbody tr');
+    
+    allRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Role filter functionality
+document.getElementById('roleFilter').addEventListener('change', function(e) {
+    const selectedRole = e.target.value;
+    const allSections = document.querySelectorAll('[data-role]');
+    
+    allSections.forEach(section => {
+        if (selectedRole === '' || section.dataset.role === selectedRole) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+});
+</script>
+
+<!-- User Details Modal -->
+<div id="userDetailsModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeUserDetails()"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-2xl leading-6 font-bold text-slate-900 mb-6" id="modal-title">
+                            <i class="fas fa-user-circle mr-3"></i>User Details
+                        </h3>
+                        
+                        <div id="userDetailsContent" class="space-y-6">
+                            <!-- User details will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" 
+                        onclick="closeUserDetails()"
+                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('userSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const allRows = document.querySelectorAll('tbody tr');
+    
+    allRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Role filter functionality
+document.getElementById('roleFilter').addEventListener('change', function(e) {
+    const selectedRole = e.target.value;
+    const allSections = document.querySelectorAll('[data-role]');
+    
+    allSections.forEach(section => {
+        if (selectedRole === '' || section.dataset.role === selectedRole) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+});
+
+// User details modal functionality
+function showUserDetails(userId) {
+    console.log('Fetching details for user ID:', userId);
+    fetch(`/accounts/admin/users/${userId}/details/`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('User data received:', data);
+            if (data.success) {
+                displayUserDetails(data.user);
+                document.getElementById('userDetailsModal').classList.remove('hidden');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while fetching user details');
+        });
+}
+
+function closeUserDetails() {
+    document.getElementById('userDetailsModal').classList.add('hidden');
+}
+
+function displayUserDetails(user) {
+    console.log('Displaying user details:', user);
+    
+    const content = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Basic Information -->
+            <div class="bg-slate-50 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-user text-blue-600"></i>
+                    Basic Information
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm text-slate-500">Full Name:</span>
+                        <p class="font-medium text-slate-900">${user.full_name || 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Email:</span>
+                        <p class="font-medium text-slate-900">${user.email}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">User ID:</span>
+                        <p class="font-medium text-slate-900">#${user.id}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Role:</span>
+                        <p class="font-medium text-slate-900">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium
+                                ${user.role === 'admin' ? 'bg-violet-100 text-violet-800' : ''}
+                                ${user.role === 'doctor' ? 'bg-blue-100 text-blue-800' : ''}
+                                ${user.role === 'patient' ? 'bg-emerald-100 text-emerald-800' : ''}">
+                                ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Status:</span>
+                        <p class="font-medium text-slate-900">
+                            ${user.is_active ? 
+                                '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span>Active</span>' : 
+                                '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><span class="w-2 h-2 bg-red-500 rounded-full"></span>Inactive</span>'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="bg-slate-50 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-cog text-blue-600"></i>
+                    Account Information
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm text-slate-500">Date Joined:</span>
+                        <p class="font-medium text-slate-900">${new Date(user.date_joined).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Last Login:</span>
+                        <p class="font-medium text-slate-900">${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never logged in'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Unread Notifications:</span>
+                        <p class="font-medium text-slate-900">
+                            ${user.unread_notifications > 0 ? 
+                                `<span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-red-500 text-white min-w-[3rem]">${user.unread_notifications}</span>` : 
+                                '<span class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold bg-slate-100 text-slate-500 min-w-[3rem]">0</span>'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            ${user.role === 'doctor' && user.doctor_profile ? `
+            <!-- Doctor Profile -->
+            <div class="bg-blue-50 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-user-md text-blue-600"></i>
+                    Doctor Profile
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm text-slate-500">Specialization:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.specialization || 'Not specified'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">License Number:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.license_number || 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Experience:</span>
+                        <p class="font-medium text-slate-900">${user.doctor_profile.experience || 'Not specified'}</p>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
+            ${user.role === 'patient' ? `
+            <!-- Patient Profile -->
+            <div class="bg-emerald-50 rounded-xl p-6">
+                <h4 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-user-injured text-emerald-600"></i>
+                    Patient Profile
+                </h4>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-sm text-slate-500">Date of Birth:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.date_of_birth ? new Date(user.patient_profile.date_of_birth).toLocaleDateString() : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Gender:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.gender ? user.patient_profile.gender : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Blood Group:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.blood_group ? user.patient_profile.blood_group : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Address:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.address ? user.patient_profile.address : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Emergency Contact:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.emergency_contact ? user.patient_profile.emergency_contact : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Medical History:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.medical_history ? user.patient_profile.medical_history : 'Not provided'}</p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-slate-500">Allergies:</span>
+                        <p class="font-medium text-slate-900">${user.patient_profile && user.patient_profile.allergies ? user.patient_profile.allergies : 'Not provided'}</p>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+    
+    console.log('Content generated:', content);
+    document.getElementById('userDetailsContent').innerHTML = content;
+}
+</script>
+{% endblock %}
