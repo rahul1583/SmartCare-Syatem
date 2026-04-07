@@ -159,6 +159,52 @@
                     </div>
                 {% endfor %}
             </div>
+
+            <!-- Pagination Controls -->
+            <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    Showing {{ bills.start_index }} to {{ bills.end_index }} of {{ total_bills }} bills
+                </div>
+                
+                {% if bills.has_other_pages %}
+                <nav class="flex items-center gap-2">
+                    {% if bills.has_previous %}
+                        <a href="?page={{ bills.previous_page_number }}" 
+                           class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </a>
+                    {% else %}
+                        <div class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 cursor-not-allowed">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </div>
+                    {% endif %}
+
+                    {% for i in bills.paginator.page_range %}
+                        {% if bills.number == i %}
+                            <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-600 text-white text-xs font-black shadow-md shadow-blue-200">
+                                {{ i }}
+                            </div>
+                        {% elif i > bills.number|add:'-3' and i < bills.number|add:'3' %}
+                            <a href="?page={{ i }}" 
+                               class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 text-xs font-black hover:bg-white hover:border-blue-300 hover:text-blue-600 transition-all shadow-sm">
+                                {{ i }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if bills.has_next %}
+                        <a href="?page={{ bills.next_page_number }}" 
+                           class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </a>
+                    {% else %}
+                        <div class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 text-gray-300 cursor-not-allowed">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </div>
+                    {% endif %}
+                </nav>
+                {% endif %}
+            </div>
         {% else %}
             <!-- Empty State -->
             <div class="text-center py-12">

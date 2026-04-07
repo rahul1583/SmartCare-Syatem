@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Lab Report - SmartCare System{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-lg p-8 mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">Upload Lab Report</h1>
+                    <p class="text-purple-100">Upload laboratory test results and reports</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="{% url 'medical_records:lab_report_detail' lab_report.id %}" 
+                       class="bg-white text-purple-600 px-6 py-3 rounded-lg font-medium hover:bg-purple-50 transition-colors flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-8">
+                <!-- Report Information -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Report Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-gray-600">Report Title:</span>
+                            <p class="font-medium text-gray-900">{{ lab_report.title }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Report Type:</span>
+                            <p class="font-medium text-gray-900">{{ lab_report.get_report_type_display }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Patient:</span>
+                            <p class="font-medium text-gray-900">{{ lab_report.patient.get_full_name|default:lab_report.patient.email }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Ordered Date:</span>
+                            <p class="font-medium text-gray-900">{{ lab_report.ordered_date|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Form -->
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-4 p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- File Upload -->
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
+                        <div class="mb-4">
+                            <i class="fas fa-cloud-upload-alt text-6xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Upload Lab Report File</h3>
+                        <p class="text-gray-600 mb-4">
+                            Choose a PDF, JPG, PNG, or DOC file containing the lab report results.
+                        </p>
+                        
+                        <div class="flex items-center justify-center">
+                            <label for="report_file" class="cursor-pointer bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-file-upload mr-2"></i>Choose File
+                            </label>
+                            <input type="file" id="report_file" name="report_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden" required>
+                        </div>
+                        
+                        <div id="file-info" class="mt-4 hidden">
+                            <p class="text-sm text-gray-600">
+                                Selected file: <span id="file-name" class="font-medium text-gray-900"></span>
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                File size: <span id="file-size" class="font-medium text-gray-900"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="completion_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Completion Date
+                            </label>
+                            <input type="date" id="completion_date" name="completion_date" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                   value="{{ lab_report.completion_date|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        
+                        <div>
+                            <label for="technician" class="block text-sm font-medium text-gray-700 mb-2">
+                                Technician Name
+                            </label>
+                            <input type="text" id="technician" name="technician" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                   placeholder="Enter technician name"
+                                   value="{{ lab_report.technician|default:'' }}">
+                        </div>
+                    </div>
+
+                    <!-- Test Results -->
+                    <div>
+                        <label for="test_results" class="block text-sm font-medium text-gray-700 mb-2">
+                            Test Results
+                        </label>
+                        <textarea id="test_results" name="test_results" rows="6" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                  placeholder="Enter detailed test results...">{{ lab_report.test_results|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Interpretation -->
+                    <div>
+                        <label for="interpretation" class="block text-sm font-medium text-gray-700 mb-2">
+                            Interpretation
+                        </label>
+                        <textarea id="interpretation" name="interpretation" rows="4" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                  placeholder="Enter clinical interpretation...">{{ lab_report.interpretation|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div>
+                        <label for="recommendations" class="block text-sm font-medium text-gray-700 mb-2">
+                            Recommendations
+                        </label>
+                        <textarea id="recommendations" name="recommendations" rows="4" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                  placeholder="Enter medical recommendations...">{{ lab_report.recommendations|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Status Update -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                            Update Status
+                        </label>
+                        <select id="status" name="status" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="pending" {% if lab_report.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="in_progress" {% if lab_report.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if lab_report.status == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% url 'medical_records:lab_report_detail' lab_report.id %}" 
+                           class="bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                        <button type="submit" 
+                                class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-upload mr-2"></i>Upload Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 rounded-xl p-6 mt-8">
+            <h3 class="text-lg font-semibold text-blue-900 mb-4">Upload Instructions</h3>
+            <div class="space-y-2 text-blue-800">
+                <p><i class="fas fa-check-circle mr-2"></i>Supported file formats: PDF, JPG, JPEG, PNG, DOC, DOCX</p>
+                <p><i class="fas fa-check-circle mr-2"></i>Maximum file size: 10MB</p>
+                <p><i class="fas fa-check-circle mr-2"></i>Ensure the file is clear and readable</p>
+                <p><i class="fas fa-check-circle mr-2"></i>Include patient name and test date in the file</p>
+                <p><i class="fas fa-check-circle mr-2"></i>Fill in all relevant medical information</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// File upload handling
+document.getElementById('report_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    
+    if (file) {
+        fileName.textContent = file.name;
+        
+        // Format file size
+        let size = file.size;
+        let sizeText = '';
+        if (size < 1024) {
+            sizeText = size + ' bytes';
+        } else if (size < 1024 * 1024) {
+            sizeText = (size / 1024).toFixed(2) + ' KB';
+        } else {
+            sizeText = (size / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        fileSize.textContent = sizeText;
+        
+        fileInfo.classList.remove('hidden');
+    } else {
+        fileInfo.classList.add('hidden');
+    }
+});
+
+// Auto-set completion date when status is changed to 'completed'
+document.getElementById('status').addEventListener('change', function(e) {
+    if (e.target.value === 'completed') {
+        const completionDate = document.getElementById('completion_date');
+        if (!completionDate.value) {
+            const today = new Date().toISOString().split('T')[0];
+            completionDate.value = today;
+        }
+    }
+});
+</script>
+{% endblock %}

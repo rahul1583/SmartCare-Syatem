@@ -18,10 +18,12 @@
                         <i class="fas fa-arrow-left mr-2"></i>Back to Records
                     </a>
                     {% if user.is_doctor or user.is_admin %}
-                        <a href="{% url 'medical_records:update_medical_record' medical_record.id %}" 
-                           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-edit mr-2"></i>Edit Record
-                        </a>
+                        {% if medical_record.chief_complaint != "Vital signs measurement" %}
+                            <a href="{% url 'medical_records:update_medical_record' medical_record.id %}" 
+                               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Edit Record
+                            </a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -112,107 +114,165 @@
                 <!-- Medical Information -->
                 <div class="space-y-6">
                     <!-- Chief Complaint -->
+                    {% if medical_record.chief_complaint and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-stethoscope mr-2 text-red-600"></i>Chief Complaint
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.chief_complaint|default:'No chief complaint recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.chief_complaint }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- History of Present Illness -->
+                    {% if medical_record.history_of_present_illness and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-history mr-2 text-orange-600"></i>History of Present Illness
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.history_of_present_illness|default:'No history recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.history_of_present_illness }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Past Medical History -->
+                    {% if medical_record.past_medical_history and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-notes-medical mr-2 text-purple-600"></i>Past Medical History
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.past_medical_history|default:'No past medical history recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.past_medical_history }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Physical Examination -->
+                    {% if medical_record.physical_examination and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-heartbeat mr-2 text-pink-600"></i>Physical Examination
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.physical_examination|default:'No physical examination recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.physical_examination }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Assessment -->
+                    {% if medical_record.assessment and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-diagnoses mr-3 text-indigo-600"></i>Assessment
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.assessment|default:'No assessment recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.assessment }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Plan -->
+                    {% if medical_record.plan and medical_record.chief_complaint != "Vital signs measurement" %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-clipboard-list mr-2 text-teal-600"></i>Treatment Plan
                         </h3>
                         <div class="bg-white rounded-lg p-4 border border-gray-200">
-                            <p class="text-gray-700">{{ medical_record.plan|default:'No treatment plan recorded' }}</p>
+                            <p class="text-gray-700">{{ medical_record.plan }}</p>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- Vital Signs (if available) -->
-                    {% if medical_record.vital_signs.exists %}
+                    {% if medical_record.vital_signs %}
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-heart-pulse mr-2 text-red-600"></i>Vital Signs
                         </h3>
-                        <div class="bg-white rounded-lg overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blood Pressure</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Heart Rate</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temperature</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        {% for vital in medical_record.vital_signs.all %}
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ vital.recorded_at|date:"F d, Y g:i A" }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ vital.blood_pressure_systolic }}/{{ vital.blood_pressure_diastolic }} mmHg
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ vital.heart_rate }} bpm
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {{ vital.temperature }}°C
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <a href="{% url 'medical_records:vital_signs_detail' vital.id %}" 
-                                                   class="text-blue-600 hover:text-blue-900">View Details</a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                                {% if medical_record.vital_signs.blood_pressure %}
+                                <div class="p-4 flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center mr-3">
+                                        <i class="fas fa-tint text-red-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">BP</p>
+                                        <p class="text-lg font-bold text-gray-800">{{ medical_record.vital_signs.blood_pressure }} <span class="text-xs font-normal text-gray-400 ml-1">mmHg</span></p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if medical_record.vital_signs.heart_rate %}
+                                <div class="p-4 flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center mr-3">
+                                        <i class="fas fa-heart text-pink-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">HR</p>
+                                        <p class="text-lg font-bold text-gray-800">{{ medical_record.vital_signs.heart_rate }} <span class="text-xs font-normal text-gray-400 ml-1">bpm</span></p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if medical_record.vital_signs.temperature %}
+                                <div class="p-4 flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center mr-3">
+                                        <i class="fas fa-thermometer-half text-orange-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Temp</p>
+                                        <p class="text-lg font-bold text-gray-800">{{ medical_record.vital_signs.temperature }} <span class="text-xs font-normal text-gray-400 ml-1">°C</span></p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if medical_record.vital_signs.oxygen_saturation %}
+                                <div class="p-4 flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mr-3">
+                                        <i class="fas fa-lungs text-blue-500"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">SpO2</p>
+                                        <p class="text-lg font-bold text-gray-800">{{ medical_record.vital_signs.oxygen_saturation }} <span class="text-xs font-normal text-gray-400 ml-1">%</span></p>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
+
+                            {% if medical_record.vital_signs.height or medical_record.vital_signs.weight or medical_record.vital_signs.bmi %}
+                            <div class="px-4 py-3 bg-gray-50/50 border-t border-gray-100 flex flex-wrap gap-6">
+                                {% if medical_record.vital_signs.height %}
+                                <div class="flex items-center text-sm">
+                                    <span class="text-gray-500 mr-2">Height:</span>
+                                    <span class="font-semibold text-gray-700">{{ medical_record.vital_signs.height }} cm</span>
+                                </div>
+                                {% endif %}
+                                {% if medical_record.vital_signs.weight %}
+                                <div class="flex items-center text-sm">
+                                    <span class="text-gray-500 mr-2">Weight:</span>
+                                    <span class="font-semibold text-gray-700">{{ medical_record.vital_signs.weight }} kg</span>
+                                </div>
+                                {% endif %}
+                                {% if medical_record.vital_signs.bmi %}
+                                <div class="flex items-center text-sm">
+                                    <span class="text-gray-500 mr-2">BMI:</span>
+                                    <span class="px-2 py-0.5 rounded bg-gray-200 text-gray-800 font-bold text-xs">{{ medical_record.vital_signs.bmi }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if medical_record.vital_signs.notes %}
+                            <div class="p-4 border-t border-gray-100">
+                                <p class="text-xs text-gray-500 uppercase font-bold mb-2">Clinical Notes</p>
+                                <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 border-l-4 border-red-200">
+                                    {{ medical_record.vital_signs.notes }}
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from .models import Prescription, Medication
@@ -10,22 +11,26 @@ from .models import Prescription, Medication
 def prescription_list_view(request):
     # Get user's prescriptions based on role
     if request.user.is_patient:
-        prescriptions = Prescription.objects.filter(patient=request.user).select_related('doctor', 'appointment').order_by('-created_at')
+        prescriptions_list = Prescription.objects.filter(patient=request.user).select_related('doctor', 'appointment').order_by('-created_at')
     elif request.user.is_doctor:
-        prescriptions = Prescription.objects.filter(doctor=request.user).select_related('patient', 'appointment').order_by('-created_at')
+        prescriptions_list = Prescription.objects.filter(doctor=request.user).select_related('patient', 'appointment').order_by('-created_at')
     else:
         # Admin can see all prescriptions
-        prescriptions = Prescription.objects.all().select_related('doctor', 'patient', 'appointment').order_by('-created_at')
+        prescriptions_list = Prescription.objects.all().select_related('doctor', 'patient', 'appointment').order_by('-created_at')
     
-    # Get today's prescriptions only
-    from django.utils import timezone
+    # Get today's prescriptions only (before pagination)
     today = timezone.now().date()
-    today_prescriptions = prescriptions.filter(created_at__date=today)
+    today_prescriptions = prescriptions_list.filter(created_at__date=today)
+    
+    # Pagination
+    paginator = Paginator(prescriptions_list, 5) # 5 items per page
+    page_number = request.GET.get('page')
+    prescriptions = paginator.get_page(page_number)
     
     context = {
         'prescriptions': prescriptions,
         'today_prescriptions': today_prescriptions,
-        'total_prescriptions': prescriptions.count(),
+        'total_prescriptions': prescriptions_list.count(),
     }
     return render(request, 'prescriptions/prescription_list.html', context)
 

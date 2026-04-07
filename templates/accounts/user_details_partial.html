@@ -160,10 +160,6 @@
                 <p class="text-sm text-gray-500">Medical History</p>
                 <p class="font-medium text-gray-900">{{ user.patient_profile.medical_history|default:"Not provided" }}</p>
             </div>
-            <div class="mt-4">
-                <p class="text-sm text-gray-500">Allergies</p>
-                <p class="font-medium text-gray-900">{{ user.patient_profile.allergies|default:"Not provided" }}</p>
-            </div>
         </div>
     {% endif %}
 </div>

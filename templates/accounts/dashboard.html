@@ -257,10 +257,6 @@
                                                                class="inline-flex items-center px-3 py-1 bg-emerald-600 text-white text-xs font-medium rounded hover:bg-emerald-700 transition-colors">
                                                                 <i class="fas fa-check-double mr-1"></i>Mark Complete
                                                             </a>
-                                                            <a href="{% url 'appointments:cancel_appointment' appointment.id %}" 
-                                                               class="inline-flex items-center px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors">
-                                                                <i class="fas fa-times mr-1"></i>Cancel
-                                                            </a>
                                                         </div>
                                                     {% endif %}
                                                     <a href="{% url 'appointments:appointment_detail' appointment.id %}" 

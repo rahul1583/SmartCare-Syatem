@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -17,17 +18,22 @@ from prescriptions.models import Prescription
 def bill_list_view(request):
     """List bills for the current user"""
     if request.user.is_patient:
-        bills = Bill.objects.filter(patient=request.user).select_related('doctor', 'appointment').order_by('-created_at')
+        bills_list = Bill.objects.filter(patient=request.user).select_related('doctor', 'appointment').order_by('-created_at')
     elif request.user.is_doctor:
-        bills = Bill.objects.filter(doctor=request.user).select_related('patient', 'appointment').order_by('-created_at')
+        bills_list = Bill.objects.filter(doctor=request.user).select_related('patient', 'appointment').order_by('-created_at')
     else:
-        bills = Bill.objects.all().select_related('patient', 'doctor', 'appointment').order_by('-created_at')
+        bills_list = Bill.objects.all().select_related('patient', 'doctor', 'appointment').order_by('-created_at')
     
     # Calculate statistics
-    total_bills = bills.count()
-    paid_bills = bills.filter(status='paid').count()
-    pending_bills = bills.filter(status='pending').count()
-    total_amount = sum(bill.total_amount for bill in bills if bill.total_amount)
+    total_bills = bills_list.count()
+    paid_bills = bills_list.filter(status='paid').count()
+    pending_bills = bills_list.filter(status='pending').count()
+    total_amount = sum(bill.total_amount for bill in bills_list if bill.total_amount)
+    
+    # Pagination
+    paginator = Paginator(bills_list, 5) # 5 items per page
+    page_number = request.GET.get('page')
+    bills = paginator.get_page(page_number)
     
     context = {
         'bills': bills,

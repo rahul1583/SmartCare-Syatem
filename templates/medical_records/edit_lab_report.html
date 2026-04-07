@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Lab Report - SmartCare System{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-t-xl px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-edit text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white">Edit Lab Report</h1>
+                            <p class="text-purple-100">Update laboratory test results for {{ lab_report.patient.get_full_name|default:lab_report.patient.email }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'medical_records:lab_report_detail' lab_report.id %}" class="text-white hover:text-purple-200 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Detail
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Form Content -->
+            <div class="p-8">
+                <form method="post" class="space-y-6" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Patient & Doctor Information (Read-only) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user-injured mr-2 text-purple-600"></i>Patient
+                            </label>
+                            <input type="text" value="{{ lab_report.patient.get_full_name|default:lab_report.patient.email }}" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user-md mr-2 text-purple-600"></i>Doctor
+                            </label>
+                            <input type="text" value="Dr. {{ lab_report.doctor.get_full_name|default:lab_report.doctor.email }}" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                        </div>
+                    </div>
+                    
+                    <!-- Report Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-vial mr-2 text-purple-600"></i>Report Type *
+                        </label>
+                        <select name="report_type" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="blood_test" {% if lab_report.report_type == 'blood_test' %}selected{% endif %}>Blood Test</option>
+                            <option value="urine_test" {% if lab_report.report_type == 'urine_test' %}selected{% endif %}>Urine Test</option>
+                            <option value="x_ray" {% if lab_report.report_type == 'x_ray' %}selected{% endif %}>X-Ray</option>
+                            <option value="ultrasound" {% if lab_report.report_type == 'ultrasound' %}selected{% endif %}>Ultrasound</option>
+                            <option value="ct_scan" {% if lab_report.report_type == 'ct_scan' %}selected{% endif %}>CT Scan</option>
+                            <option value="mri" {% if lab_report.report_type == 'mri' %}selected{% endif %}>MRI</option>
+                            <option value="ecg" {% if lab_report.report_type == 'ecg' %}selected{% endif %}>ECG</option>
+                            <option value="pathology" {% if lab_report.report_type == 'pathology' %}selected{% endif %}>Pathology</option>
+                            <option value="other" {% if lab_report.report_type == 'other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Title -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-heading mr-2 text-purple-600"></i>Report Title *
+                        </label>
+                        <input type="text" name="title" value="{{ lab_report.title }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-file-medical mr-2 text-purple-600"></i>Description
+                        </label>
+                        <textarea name="description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">{{ lab_report.description|default:'' }}</textarea>
+                    </div>
+                    
+                    <!-- Test Results -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clipboard-check mr-2 text-purple-600"></i>Test Results
+                        </label>
+                        <textarea name="results" rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">{{ lab_report.results|default:'' }}</textarea>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-info-circle mr-2 text-purple-600"></i>Status
+                        </label>
+                        <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            <option value="pending" {% if lab_report.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="in_progress" {% if lab_report.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="completed" {% if lab_report.status == 'completed' %}selected{% endif %}>Completed</option>
+                            <option value="cancelled" {% if lab_report.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Report File Update -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-file-upload mr-2 text-purple-600"></i>Update Report File
+                        </label>
+                        {% if lab_report.report_file %}
+                            <div class="mb-3 p-3 bg-purple-50 rounded-lg flex items-center justify-between border border-purple-100">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-pdf text-purple-600 mr-3"></i>
+                                    <span class="text-sm text-gray-700 truncate max-w-xs">{{ lab_report.report_file.name }}</span>
+                                </div>
+                                <span class="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Current File</span>
+                            </div>
+                        {% endif %}
+                        <div id="file-upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-500 transition-colors">
+                            <div id="upload-content" class="space-y-2">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                <div class="text-sm text-gray-600">
+                                    <label for="report_file" class="cursor-pointer text-purple-600 hover:text-purple-700">
+                                        <span>Click to upload new file</span>
+                                        <input type="file" id="report_file" name="report_file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500">PDF, JPG, PNG up to 10MB (Leave empty to keep current file)</p>
+                            </div>
+                            <div id="file-info" class="hidden space-y-2">
+                                <i class="fas fa-check-circle text-4xl text-green-500"></i>
+                                <div class="text-sm text-gray-700">
+                                    <p class="font-medium" id="file-name"></p>
+                                    <p class="text-xs text-gray-500" id="file-size"></p>
+                                </div>
+                                <button type="button" id="remove-file" class="text-red-600 hover:text-red-700 text-sm">
+                                    <i class="fas fa-trash mr-1"></i>Remove file
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{% url 'medical_records:lab_report_detail' lab_report.id %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-purple-200">
+                            <i class="fas fa-save mr-2"></i>Update Lab Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('report_file');
+    const uploadArea = document.getElementById('file-upload-area');
+    const uploadContent = document.getElementById('upload-content');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFileBtn = document.getElementById('remove-file');
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFileUpload(file);
+        }
+    });
+
+    function handleFileUpload(file) {
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File size must be less than 10MB');
+            fileInput.value = '';
+            return;
+        }
+
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+        uploadContent.classList.add('hidden');
+        fileInfo.classList.remove('hidden');
+        uploadArea.classList.add('border-green-500', 'bg-green-50');
+    }
+
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        uploadContent.classList.remove('hidden');
+        fileInfo.classList.add('hidden');
+        uploadArea.classList.remove('border-green-500', 'bg-green-50');
+    });
+});
+</script>
+{% endblock %}

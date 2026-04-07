@@ -37,12 +37,11 @@ class UserRegistrationForm(UserCreationForm):
 class PatientProfileForm(forms.ModelForm):
     class Meta:
         model = PatientProfile
-        fields = ['date_of_birth', 'gender', 'blood_group', 'address', 'emergency_contact', 'medical_history', 'allergies']
+        fields = ['date_of_birth', 'gender', 'blood_group', 'address', 'emergency_contact', 'medical_history']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'address': forms.Textarea(attrs={'rows': 3}),
             'medical_history': forms.Textarea(attrs={'rows': 3}),
-            'allergies': forms.Textarea(attrs={'rows': 3}),
         }
 
 class DoctorProfileForm(forms.ModelForm):

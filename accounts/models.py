@@ -90,7 +90,6 @@ class PatientProfile(models.Model):
     address = models.TextField(blank=True, null=True)
     emergency_contact = models.CharField(max_length=20, blank=True, null=True)
     medical_history = models.TextField(blank=True, null=True)
-    allergies = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
