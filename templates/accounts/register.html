@@ -3,42 +3,57 @@
 {% block title %}Register - SmartCare System{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div class="p-8">
-                <div class="text-center mb-8">
-                    <h1 class="text-4xl font-bold text-gray-900 mb-2">Create Account</h1>
-                    <p class="text-gray-600">Join SmartCare Healthcare System</p>
+<div class="min-h-[calc(100vh-80px)] bg-[#F8FAFC] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div class="max-w-xl w-full">
+        <!-- Register Card -->
+        <div class="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+            <div class="p-8 sm:p-12">
+                <!-- Header with Logo -->
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-[#EF4444] to-[#B91C1C] rounded-[1.25rem] flex items-center justify-center shadow-xl shadow-red-500/20 transform hover:rotate-6 transition-transform duration-300">
+                            <i class="fas fa-heartbeat text-white text-3xl"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Join SmartCare</h1>
+                    <p class="text-slate-500 font-medium">Experience the future of healthcare today</p>
                 </div>
 
-                <form method="post" class="space-y-6">
+                <form method="post" class="space-y-5">
                     {% csrf_token %}
                     
-                    <!-- Name Fields -->
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label for="id_first_name" class="block text-gray-700 text-sm font-bold mb-2">
-                                First Name
-                            </label>
-                            <input type="text" name="first_name" id="id_first_name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   placeholder="John">
+                    <!-- Name Fields Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label for="id_first_name" class="block text-slate-700 text-sm font-bold ml-1">First Name</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-user text-sm"></i>
+                                </div>
+                                <input type="text" name="first_name" id="id_first_name" required
+                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       placeholder="First Name">
+                            </div>
                             {% if form.first_name.errors %}
-                                <p class="text-red-500 text-xs mt-1">
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
                                     {% for error in form.first_name.errors %}{{ error }}{% endfor %}
                                 </p>
                             {% endif %}
                         </div>
-                        <div>
-                            <label for="id_last_name" class="block text-gray-700 text-sm font-bold mb-2">
-                                Last Name
-                            </label>
-                            <input type="text" name="last_name" id="id_last_name" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   placeholder="Doe">
+                        <div class="space-y-1.5">
+                            <label for="id_last_name" class="block text-slate-700 text-sm font-bold ml-1">Last Name</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-user text-sm"></i>
+                                </div>
+                                <input type="text" name="last_name" id="id_last_name" required
+                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       placeholder="Last Name">
+                            </div>
                             {% if form.last_name.errors %}
-                                <p class="text-red-500 text-xs mt-1">
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
                                     {% for error in form.last_name.errors %}{{ error }}{% endfor %}
                                 </p>
                             {% endif %}
@@ -46,131 +61,148 @@
                     </div>
                     
                     <!-- Email Field -->
-                    <div class="mb-6">
-                        <label for="id_email" class="block text-gray-700 text-sm font-bold mb-2">
-                            Email Address <span class="text-red-500">*</span>
-                        </label>
-                        <input type="email" name="email" id="id_email" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="yourname@gmail.com">
-                        <p class="text-xs text-gray-500 mt-1">Only Gmail accounts are allowed (must end with @gmail.com)</p>
+                    <div class="space-y-1.5">
+                        <label for="id_email" class="block text-slate-700 text-sm font-bold ml-1">Email Address</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </div>
+                            <input type="email" name="email" id="id_email" required
+                                   class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                   placeholder="name@gmail.com">
+                        </div>
+                        <div class="flex items-center gap-1.5 ml-1">
+                            <span class="w-1 h-1 bg-blue-500 rounded-full"></span>
+                            <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Only Gmail accounts are accepted</p>
+                        </div>
                         {% if form.email.errors %}
-                            <p class="text-red-500 text-xs mt-1">
+                            <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                <i class="fas fa-circle-exclamation"></i>
                                 {% for error in form.email.errors %}{{ error }}{% endfor %}
                             </p>
                         {% endif %}
                     </div>
                     
-                    <!-- Role Field -->
-                    <div class="mb-6">
-                        <label for="id_role" class="block text-gray-700 text-sm font-bold mb-2">
-                            Register as
-                        </label>
-                        <select name="role" id="id_role" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select Role</option>
-                            <option value="patient">Patient</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                        {% if form.role.errors %}
-                            <p class="text-red-500 text-xs mt-1">
-                                {% for error in form.role.errors %}{{ error }}{% endfor %}
-                            </p>
-                        {% endif %}
+                    <!-- Role & Phone Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label for="id_role" class="block text-slate-700 text-sm font-bold ml-1">Register as</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-user-tag text-sm"></i>
+                                </div>
+                                <select name="role" id="id_role" required
+                                        class="w-full pl-11 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 font-medium appearance-none cursor-pointer">
+                                    <option value="" disabled selected>Select Role</option>
+                                    <option value="patient">Patient</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            {% if form.role.errors %}
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {% for error in form.role.errors %}{{ error }}{% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="id_phone" class="block text-slate-700 text-sm font-bold ml-1">Phone Number</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-phone text-sm"></i>
+                                </div>
+                                <input type="tel" name="phone" id="id_phone"
+                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       placeholder="+123 456 7890">
+                            </div>
+                            {% if form.phone.errors %}
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     
-                    <!-- Phone Field -->
-                    <div class="mb-6">
-                        <label for="id_phone" class="block text-gray-700 text-sm font-bold mb-2">
-                            Phone Number (Optional)
-                        </label>
-                        <input type="tel" name="phone" id="id_phone"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="+1234567890">
-                        {% if form.phone.errors %}
-                            <p class="text-red-500 text-xs mt-1">
-                                {% for error in form.phone.errors %}{{ error }}{% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Password Fields -->
-                    <div class="mb-6">
-                        <label for="id_password1" class="block text-gray-700 text-sm font-bold mb-2">
-                            Password <span class="text-red-500">*</span>
-                        </label>
-                        <input type="password" name="password1" id="id_password1" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="••••••••••">
-                        {% if form.password1.errors %}
-                            <p class="text-red-500 text-xs mt-1">
-                                {% for error in form.password1.errors %}{{ error }}{% endfor %}
-                            </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="id_password2" class="block text-gray-700 text-sm font-bold mb-2">
-                            Confirm Password <span class="text-red-500">*</span>
-                        </label>
-                        <input type="password" name="password2" id="id_password2" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                               placeholder="••••••••••">
-                        {% if form.password2.errors %}
-                            <p class="text-red-500 text-xs mt-1">
-                                {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                            </p>
-                        {% endif %}
+                    <!-- Password Fields Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label for="id_password1" class="block text-slate-700 text-sm font-bold ml-1">Password</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-lock text-sm"></i>
+                                </div>
+                                <input type="password" name="password1" id="id_password1" required
+                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       placeholder="••••••••">
+                            </div>
+                            {% if form.password1.errors %}
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {% for error in form.password1.errors %}{{ error }}{% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label for="id_password2" class="block text-slate-700 text-sm font-bold ml-1">Confirm</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <i class="fas fa-shield-halved text-sm"></i>
+                                </div>
+                                <input type="password" name="password2" id="id_password2" required
+                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       placeholder="••••••••">
+                            </div>
+                            {% if form.password2.errors %}
+                                <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                    <i class="fas fa-circle-exclamation"></i>
+                                    {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
                     </div>
                     
                     <!-- Submit Button -->
-                    <div>
+                    <div class="pt-2">
                         <button type="submit" 
-                                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 hover:scale-105">
-                            <i class="fas fa-user-plus mr-2"></i>
-                            Create Account
+                                class="w-full py-4 px-6 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-blue-500/40 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 font-black text-base active:scale-[0.98] flex items-center justify-center gap-3">
+                            <span>Create Account</span>
+                            <i class="fas fa-arrow-right text-sm"></i>
                         </button>
                     </div>
                 </form>
 
                 <!-- Divider -->
-                <div class="relative my-8">
+                <div class="relative my-10">
                     <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
+                        <div class="w-full border-t border-slate-100"></div>
                     </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                    <div class="relative flex justify-center text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        <span class="px-4 bg-white">Social Connect</span>
                     </div>
                 </div>
 
                 <!-- Google Sign-in -->
-                <a href="{% url 'accounts:google_login_start' %}" class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="w-5 h-5 mr-3">
-                    <span class="text-gray-700 font-medium">Google</span>
+                <a href="{% url 'accounts:google_login_start' %}" class="w-full flex items-center justify-center gap-3 px-6 py-4 border border-slate-200 rounded-2xl bg-white hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 group">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="w-5 h-5 group-hover:scale-110 transition-transform">
+                    <span class="text-slate-700 font-bold text-sm">Continue with Google</span>
                 </a>
-                
-                {% if messages %}
-                    <div class="mt-6">
-                        {% for message in messages %}
-                            <div class="p-4 rounded-md {% if message.tags %}{{ message.tags }}{% endif %}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+
+                <!-- Footer Link -->
+                <div class="mt-10 text-center">
+                    <p class="text-slate-500 font-semibold text-sm">
+                        Already part of SmartCare?
+                        <a href="{% url 'accounts:login' %}" 
+                           class="text-blue-600 hover:text-blue-700 font-black ml-1 transition-colors underline decoration-blue-500/30 underline-offset-4 decoration-2 hover:decoration-blue-600">
+                            Sign In
+                        </a>
+                    </p>
+                </div>
             </div>
-        </div>
-        
-        <!-- Login Link -->
-        <div class="text-center">
-            <p class="text-sm text-gray-600">
-                Already have an account?
-                <a href="{% url 'accounts:login' %}" 
-                   class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                    Sign in here
-                </a>
-            </p>
         </div>
     </div>
 </div>

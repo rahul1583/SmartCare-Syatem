@@ -13,13 +13,13 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('email', 'first_name', 'last_name', 'role', 'phone', 'password1', 'password2')
     
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get('email').lower()
         if not email.endswith('@gmail.com'):
             raise ValidationError('Only Gmail accounts are allowed. Please use an email ending with @gmail.com')
         
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
-            raise ValidationError('An account with this email already exists.')
+        # Check if email already exists (case-insensitive)
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError('An account with this email already exists. Please use a different email or sign in.')
         return email
     
     def save(self, commit=True):
@@ -37,11 +37,10 @@ class UserRegistrationForm(UserCreationForm):
 class PatientProfileForm(forms.ModelForm):
     class Meta:
         model = PatientProfile
-        fields = ['date_of_birth', 'gender', 'blood_group', 'address', 'emergency_contact', 'medical_history']
+        fields = ['date_of_birth', 'gender', 'address']
         widgets = {
             'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
             'address': forms.Textarea(attrs={'rows': 3}),
-            'medical_history': forms.Textarea(attrs={'rows': 3}),
         }
 
 class DoctorProfileForm(forms.ModelForm):

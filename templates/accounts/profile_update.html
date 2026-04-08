@@ -3,76 +3,108 @@
 {% block title %}Update Profile - SmartCare System{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <div class="text-center mb-6">
-            <i class="fas fa-user-edit text-blue-600 text-3xl mb-2"></i>
-            <h2 class="text-2xl font-bold text-gray-800">Complete Your Profile</h2>
-            <p class="text-gray-600">Update your information and profile photo</p>
-        </div>
-        
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <!-- Profile Photo -->
-            <div class="mb-6 text-center">
-                {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" alt="Profile" class="w-24 h-24 rounded-full object-cover mx-auto mb-3 border-4 border-blue-100">
-                {% else %}
-                    <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3 text-blue-600 text-2xl font-bold">
-                        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
-                    </div>
-                {% endif %}
-                <label class="block text-gray-700 text-sm font-bold mb-2">Profile Photo</label>
-                {{ user_form.avatar }}
-                {% if user_form.avatar.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ user_form.avatar.errors.0 }}</p>
-                {% endif %}
-                <p class="text-xs text-gray-500 mt-1">Choose an image (JPG, PNG). Max 2MB.</p>
-            </div>
-
-            <!-- User Form (name, phone) -->
-            <div class="mb-6 border-b border-gray-200 pb-6">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-3">Basic Information</h3>
-                {% for field in user_form %}
-                    {% if field.name != 'avatar' %}
-                    <div class="mb-4">
-                        <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                            {{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}
-                        </label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            <!-- Role-specific Profile Form -->
-            {% if profile_form %}
-            <div class="mb-6">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase mb-3">{% if user.is_patient %}Patient{% else %}Doctor{% endif %} Details</h3>
-                {% for field in profile_form %}
-                <div class="mb-4">
-                    <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}
-                    </label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                    {% endif %}
+<div class="min-h-screen bg-[#F8FAFC] py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl mx-auto">
+        <!-- Compact Update Card -->
+        <div class="bg-white rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
+            <div class="p-6 sm:p-10">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight mb-1">Update Profile</h1>
+                    <p class="text-slate-500 text-xs font-medium">Keep your records up to date</p>
                 </div>
-                {% endfor %}
+
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Compact Avatar Section -->
+                    <div class="flex items-center gap-6 p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="relative">
+                            <div class="w-16 h-16 rounded-full bg-white p-1 shadow-sm overflow-hidden ring-2 ring-slate-100">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Profile" class="w-full h-full object-cover rounded-full">
+                                {% else %}
+                                    <div class="w-full h-full bg-slate-100 flex items-center justify-center rounded-full text-slate-300">
+                                        <i class="fas fa-user text-xl"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <label for="id_avatar" class="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center shadow-md cursor-pointer hover:bg-blue-700 transition-all border-2 border-white">
+                                <i class="fas fa-camera text-[10px]"></i>
+                            </label>
+                            <input type="file" name="avatar" id="id_avatar" class="hidden" accept="image/*">
+                        </div>
+                        <div>
+                            <p class="text-sm font-black text-slate-700">Profile Photo</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">JPG or PNG, Max 2MB</p>
+                        </div>
+                    </div>
+
+                    <!-- Compact Basic Info -->
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for field in user_form %}
+                                {% if field.name != 'avatar' %}
+                                <div class="space-y-1">
+                                    <label for="{{ field.id_for_label }}" class="block text-slate-600 text-[10px] font-black uppercase tracking-widest ml-1">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <p class="text-red-500 text-[10px] font-bold mt-1 ml-1">{{ field.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if user.is_patient and profile_form %}
+                                {% for field in profile_form %}
+                                <div class="space-y-1 {% if field.name == 'address' %}sm:col-span-2{% endif %}">
+                                    <label for="{{ field.id_for_label }}" class="block text-slate-600 text-[10px] font-black uppercase tracking-widest ml-1">
+                                        {{ field.label }}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <p class="text-red-500 text-[10px] font-bold mt-1 ml-1">{{ field.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Role Details (For Doctor Only) -->
+                    {% if user.is_doctor and profile_form %}
+                    <div class="space-y-4 pt-4 border-t border-slate-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for field in profile_form %}
+                            <div class="space-y-1 {% if field.name == 'bio' %}sm:col-span-2{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="block text-slate-600 text-[10px] font-black uppercase tracking-widest ml-1">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="text-red-500 text-[10px] font-bold mt-1 ml-1">{{ field.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Shorter Submit Buttons -->
+                    <div class="pt-4 flex items-center gap-3">
+                        <button type="submit" class="flex-[2] py-3.5 px-6 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/10 hover:bg-blue-700 transition-all font-black text-sm active:scale-[0.98] flex items-center justify-center gap-2">
+                            <i class="fas fa-save text-xs"></i>
+                            Save
+                        </button>
+                        <a href="{% url 'accounts:profile' %}" class="flex-1 py-3.5 bg-white text-slate-900 border border-slate-200 font-black text-xs rounded-xl hover:bg-slate-50 transition-all active:scale-[0.98] flex items-center justify-center">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
-            {% endif %}
-            
-            <div class="mb-6">
-                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-save mr-2"></i>Save Profile
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -82,27 +114,37 @@
     input[type="tel"],
     input[type="date"],
     input[type="number"],
-    input[type="file"],
     select,
     textarea {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        font-size: 14px;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        width: 100% !important;
+        padding: 0.75rem 1rem !important;
+        background-color: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 0.875rem !important;
+        font-size: 0.8125rem !important;
+        font-weight: 600 !important;
+        color: #0F172A !important;
+        transition: all 0.2s ease !important;
     }
     
-    input:focus,
-    select:focus,
-    textarea:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    input:focus, select:focus, textarea:focus {
+        outline: none !important;
+        background-color: #FFFFFF !important;
+        border-color: #3B82F6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.05) !important;
     }
     
     textarea {
-        resize: vertical;
+        min-height: 80px !important;
+        resize: vertical !important;
+    }
+
+    select {
+        appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 0.875rem !important;
     }
 </style>
 {% endblock %}

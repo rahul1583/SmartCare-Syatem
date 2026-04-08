@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import TemplateView, ListView, UpdateView
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
@@ -95,9 +96,10 @@ def logout_view(request):
     messages.success(request, 'You have been successfully logged out.')
     return redirect('home')
 
-class CustomLoginView(LoginView):
+class CustomLoginView(SuccessMessageMixin, LoginView):
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
+    success_message = "User login successfully"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -105,16 +107,16 @@ class CustomLoginView(LoginView):
         return context
 
     def form_invalid(self, form):
-        # Add debugging to see why login failed
-        email = form.cleaned_data.get('username', '')
-        password = form.cleaned_data.get('password', '')
+        # Get credentials from POST data directly as cleaned_data might be incomplete on failure
+        email = self.request.POST.get('username', '')
+        password = self.request.POST.get('password', '')
         
-        # Check if user exists
+        # Check if user exists (case-insensitive)
         from accounts.models import User
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email__iexact=email)
             if not user.check_password(password):
-                messages.error(self.request, 'Invalid password. Please try again.')
+                messages.error(self.request, 'Wrong password. Please try again.')
             else:
                 messages.error(self.request, 'Authentication failed. Please check your credentials.')
         except User.DoesNotExist:
@@ -122,6 +124,16 @@ class CustomLoginView(LoginView):
         
         return super().form_invalid(form)
     
+    def form_valid(self, form):
+        remember_me = self.request.POST.get('remember_me')
+        if not remember_me:
+            # Session expires on browser close
+            self.request.session.set_expiry(0)
+        else:
+            # Session expires in 2 weeks (default)
+            self.request.session.set_expiry(1209600)
+        return super().form_valid(form)
+
     def get_success_url(self):
         user = self.request.user
         if user.is_admin:
