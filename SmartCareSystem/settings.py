@@ -38,7 +38,7 @@ SECRET_KEY = 'django-insecure-zr(s)mh4z3xq)-k1ufbdo4m0caeo3!-s0azmu39am0wou7ba@e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'testserver']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'testserver', 'smartcare-syatem.onrender.com', ]
 
 
 # Application definition
@@ -104,13 +104,23 @@ WSGI_APPLICATION = 'SmartCareSystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'smartcare_db_qd07',
+        'USER': 'admin',
+        'PASSWORD': 'eLkqUhNkVO24vmlbIcqgtI4qH1MHYuCM',
+        'HOST': 'dpg-d7bjtevkijhs73aoend0-a',
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
