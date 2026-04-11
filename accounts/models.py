@@ -109,6 +109,8 @@ class DoctorProfile(models.Model):
     license_number = models.CharField(max_length=50, unique=True)
     consultation_fee = models.DecimalField(max_digits=10, decimal_places=2)
     bio = models.TextField(blank=True, null=True)
+    doctor_certificate = models.FileField(upload_to='doctor_certificates/', blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -120,3 +122,18 @@ class DoctorProfile(models.Model):
     
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} ({self.specialization})"
+
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        from django.utils import timezone
+        from datetime import timedelta
+        # OTP valid for 10 minutes
+        return self.created_at >= timezone.now() - timedelta(minutes=10) and not self.is_verified
+
+    class Meta:
+        db_table = 'password_reset_otps'

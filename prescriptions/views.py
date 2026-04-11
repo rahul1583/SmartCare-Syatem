@@ -7,6 +7,52 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from .models import Prescription, Medication
 
+
+def _parse_medicine_line(medicine_line, validity_days):
+    """
+    Parse one non-empty line from the medicines textarea.
+    Prefer segments separated by ' - ' (space-dash-space) so names can contain hyphens.
+    """
+    line = (medicine_line or '').strip()
+    if not line:
+        return None
+    parts = [p.strip() for p in line.split(' - ')] if ' - ' in line else [line]
+    name = parts[0]
+    if '. ' in name:
+        name = name.split('. ', 1)[1]
+    dosage = parts[1] if len(parts) > 1 else 'As prescribed'
+    frequency_str = parts[2].lower() if len(parts) > 2 else 'once daily'
+    duration = parts[3] if len(parts) > 3 else f'{validity_days or 30} days'
+    frequency_map = {
+        'once daily': 'once',
+        'twice daily': 'twice',
+        'thrice daily': 'thrice',
+        'four times daily': 'four_times',
+        'sos': 'sos',
+        'weekly': 'weekly',
+        'monthly': 'monthly',
+    }
+    frequency = 'once'
+    for key, val in frequency_map.items():
+        if key in frequency_str:
+            frequency = val
+            break
+    return {
+        'medicine_name': name,
+        'dosage': dosage,
+        'frequency': frequency,
+        'duration': duration,
+    }
+
+
+def _medicines_text_from_prescription(prescription):
+    lines = []
+    for m in prescription.medications.all().order_by('id'):
+        lines.append(
+            f'{m.medicine_name} - {m.dosage} - {m.get_frequency_display()} - {m.duration}'
+        )
+    return '\n'.join(lines)
+
 @login_required
 def prescription_list_view(request):
     # Get user's prescriptions based on role
@@ -84,8 +130,24 @@ def create_prescription_view(request):
             follow_up_date = request.POST.get('follow_up_date')
             
             # Validate required fields
-            if not patient_id or not diagnosis or not medicines:
-                messages.error(request, 'Patient, diagnosis, and medicines are required fields.')
+            patient_valid = patient_id and str(patient_id).strip() != ''
+            diagnosis_valid = diagnosis and str(diagnosis).strip() != ''
+            medicines_valid = medicines and str(medicines).strip() != ''
+            
+            if not patient_valid or not diagnosis_valid or not medicines_valid:
+                error_messages = []
+                if not patient_valid:
+                    error_messages.append("patient")
+                if not diagnosis_valid:
+                    error_messages.append("diagnosis")
+                if not medicines_valid:
+                    error_messages.append("medicines")
+                
+                if len(error_messages) == 1:
+                    error_msg = f"Please provide {error_messages[0]}."
+                else:
+                    error_msg = f"Please provide: {', '.join(error_messages)}."
+                messages.error(request, error_msg)
                 return redirect('prescriptions:create')
             
             # Get patient
@@ -113,14 +175,16 @@ def create_prescription_view(request):
             # Parse medicines and create medication records
             medicines_list = [med.strip() for med in medicines.split('\n') if med.strip()]
             for medicine_line in medicines_list:
-                # Create a simple medication record from the text
+                parsed = _parse_medicine_line(medicine_line, validity_days)
+                if not parsed:
+                    continue
                 Medication.objects.create(
                     prescription=prescription,
-                    medicine_name=medicine_line,
-                    dosage="As prescribed",
-                    frequency="once",
-                    duration=f"{validity_days or 30} days",
-                    instructions=instructions or "Take as directed",
+                    medicine_name=parsed['medicine_name'],
+                    dosage=parsed['dosage'],
+                    frequency=parsed['frequency'],
+                    duration=parsed['duration'],
+                    instructions=instructions or 'Take as directed',
                     quantity=1
                 )
             
@@ -166,8 +230,6 @@ def create_prescription_view(request):
     if appointments_with_prescriptions.exists():
         appointments = appointments.exclude(id__in=appointments_with_prescriptions)
     
-    print(f"DEBUG: Found {patients.count()} patients and {appointments.count()} unique latest appointments (without prescriptions)")
-    
     context = {
         'patients': patients,
         'appointments': appointments,
@@ -195,7 +257,7 @@ def update_prescription_view(request, prescription_id):
             follow_up_date = request.POST.get('follow_up_date')
             
             # Validate required fields
-            if not diagnosis or not medicines:
+            if not diagnosis or str(diagnosis).strip() == '' or not medicines or str(medicines).strip() == '':
                 messages.error(request, 'Diagnosis and medicines are required fields.')
                 return redirect('prescriptions:update', prescription_id=prescription.id)
             
@@ -212,14 +274,16 @@ def update_prescription_view(request, prescription_id):
             # Parse medicines and create new medication records
             medicines_list = [med.strip() for med in medicines.split('\n') if med.strip()]
             for medicine_line in medicines_list:
-                # Create a simple medication record from the text
+                parsed = _parse_medicine_line(medicine_line, validity_days)
+                if not parsed:
+                    continue
                 Medication.objects.create(
                     prescription=prescription,
-                    medicine_name=medicine_line,
-                    dosage="As prescribed",
-                    frequency="once",
-                    duration=f"{validity_days or 30} days",
-                    instructions=instructions or "Take as directed",
+                    medicine_name=parsed['medicine_name'],
+                    dosage=parsed['dosage'],
+                    frequency=parsed['frequency'],
+                    duration=parsed['duration'],
+                    instructions=instructions or 'Take as directed',
                     quantity=1
                 )
             
@@ -232,16 +296,16 @@ def update_prescription_view(request, prescription_id):
     
     # GET request - show the form
     medications = prescription.medications.all()
-    
     context = {
         'prescription': prescription,
         'medications': medications,
+        'medicines_initial': _medicines_text_from_prescription(prescription),
     }
     return render(request, 'prescriptions/update_prescription.html', context)
 
 @login_required
 def download_prescription_view(request, prescription_id):
-    """Generate and download prescription as PDF"""
+    """Generate and download prescription as PDF (actually HTML for now)"""
     prescription = get_object_or_404(Prescription, id=prescription_id)
     
     # Check permissions
@@ -269,42 +333,23 @@ def download_prescription_view(request, prescription_id):
     return response
 
 @login_required
-def medicine_list_view(request):
-    return render(request, 'prescriptions/medicine_list.html')
-
-@login_required
-def add_medicine_view(request):
-    return render(request, 'prescriptions/add_medicine.html')
-
-@login_required
-def update_medicine_view(request, medicine_id):
-    return render(request, 'prescriptions/update_medicine.html')
-
-@login_required
-def download_prescription_view(request, prescription_id):
-    """Generate and download prescription as PDF"""
+def print_prescription_view(request, prescription_id):
+    """View to show a professional printable prescription"""
     prescription = get_object_or_404(Prescription, id=prescription_id)
     
     # Check permissions
     if request.user.is_patient and prescription.patient != request.user:
-        messages.error(request, 'You can only download your own prescriptions.')
+        messages.error(request, 'You can only print your own prescriptions.')
         return redirect('prescriptions:list')
     elif request.user.is_doctor and prescription.doctor != request.user:
-        messages.error(request, 'You can only download prescriptions you created.')
+        messages.error(request, 'You can only print prescriptions you created.')
         return redirect('prescriptions:list')
     
     medications = prescription.medications.all()
     
-    # Generate HTML content for PDF
-    html_content = render_to_string('prescriptions/prescription_pdf.html', {
+    context = {
         'prescription': prescription,
         'medications': medications,
-        'request': request,
-    })
-    
-    # For now, return as HTML (can be extended to use ReportLab or WeasyPrint for actual PDF generation)
-    response = HttpResponse(content_type='text/html')
-    response['Content-Disposition'] = f'attachment; filename="prescription_{prescription.id}.html"'
-    response.write(html_content)
-    
-    return response
+        'is_print': True
+    }
+    return render(request, 'prescriptions/prescription_pdf.html', context)

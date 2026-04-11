@@ -122,10 +122,11 @@
                     </div>
                 </div>
                 
-                <div class="text-center mt-6">
-                    <button type="submit" 
+                <div class="text-center mt-6 space-y-2">
+                    <p class="text-sm text-gray-500">You will be asked to confirm on the next step before the payment is completed.</p>
+                    <button type="submit" name="payment_preview" value="1"
                             class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors text-lg">
-                        💰 Pay Rs. {{ remaining_balance }} Now
+                        Continue to confirmation — Rs. {{ remaining_balance }}
                     </button>
                 </div>
             </form>

@@ -32,9 +32,9 @@ def easy_appointments_view(request):
     pending_appointments = user_appointments.filter(status='pending').count()
     
     # Get available doctors
-    available_doctors = User.objects.filter(role='doctor', is_active=True).count()
+    available_doctors = User.objects.filter(role='doctor', is_active=True, doctor_profile__is_approved=True).count()
     
-    doctors_list = User.objects.filter(role='doctor', is_active=True)
+    doctors_list = User.objects.filter(role='doctor', is_active=True, doctor_profile__is_approved=True)
     
     # Get today's appointments list
     today_appointments_list = user_appointments.filter(date_time__date=today).order_by('date_time')
@@ -81,57 +81,36 @@ def appointment_list_view(request):
 
 @login_required
 def book_appointment_view(request):
+    # Only patients can book appointments
+    if not request.user.is_patient:
+        messages.error(request, 'Only patients are allowed to book appointments.')
+        return redirect('accounts:dashboard')
+
     if request.method == 'POST':
-        if request.user.is_doctor:
-            form = DoctorAppointmentBookingForm(request.POST)
-            if form.is_valid():
-                try:
-                    appointment = form.save(commit=False)
-                    appointment.doctor = request.user
-                    appointment.status = 'pending'
-                    appointment.save()
-                    
-                    messages.success(request, 'Appointment booked successfully! Your appointment is scheduled and pending confirmation.')
-                    return redirect('appointments:appointment_list')
-                except Exception as e:
-                    messages.error(request, f'Failed to book appointment: {str(e)}')
-            else:
-                # Display form errors
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'{field}: {error}')
+        form = AppointmentBookingForm(request.POST, user=request.user)
+        if form.is_valid():
+            try:
+                appointment = form.save(commit=False)
+                # Set patient based on user role
+                appointment.patient = request.user
+                # Ensure patient_name is set from form data
+                if not appointment.patient_name:
+                    appointment.patient_name = request.user.get_full_name() or request.user.email
+                
+                appointment.status = 'pending'
+                appointment.save()
+                
+                messages.success(request, 'Appointment booked successfully! Your appointment is scheduled and pending confirmation.')
+                return redirect('appointments:appointment_list')
+            except Exception as e:
+                messages.error(request, f'Failed to book appointment: {str(e)}')
         else:
-            form = AppointmentBookingForm(request.POST, user=request.user)
-            if form.is_valid():
-                try:
-                    appointment = form.save(commit=False)
-                    # Set patient based on user role
-                    if request.user.is_patient:
-                        appointment.patient = request.user
-                        # Ensure patient_name is set from form data
-                        if not appointment.patient_name:
-                            appointment.patient_name = request.user.get_full_name() or request.user.username
-                    else:
-                        messages.error(request, 'You do not have permission to book appointments.')
-                        return redirect('accounts:dashboard')
-                    
-                    appointment.status = 'pending'
-                    appointment.save()
-                    
-                    messages.success(request, 'Appointment booked successfully! Your appointment is scheduled and pending confirmation.')
-                    return redirect('appointments:appointment_list')
-                except Exception as e:
-                    messages.error(request, f'Failed to book appointment: {str(e)}')
-            else:
-                # Display form errors
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        messages.error(request, f'{field}: {error}')
+            # Display form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
-        if request.user.is_doctor:
-            form = DoctorAppointmentBookingForm()
-        else:
-            form = AppointmentBookingForm(user=request.user)
+        form = AppointmentBookingForm(user=request.user)
     
     return render(request, 'appointments/book_appointment.html', {'form': form})
 

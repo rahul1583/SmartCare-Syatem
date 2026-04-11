@@ -1,12 +1,20 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
+from django.urls import reverse, NoReverseMatch
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from .models import Notification, NotificationPreference
+
+
+def _notify_url(viewname, kwargs=None):
+    try:
+        return reverse(viewname, kwargs=kwargs or {})
+    except NoReverseMatch:
+        return '/dashboard/'
 from appointments.models import Appointment
 from billing.models import Bill
 from prescriptions.models import Prescription
@@ -25,20 +33,22 @@ def appointment_notification_handler(sender, instance, created, **kwargs):
         message = f"Your appointment has been booked for {instance.date_time.strftime('%B %d, %Y at %I:%M %p')}."
         
         # Send to patient
+        appt_url = _notify_url('appointments:appointment_detail', {'appointment_id': instance.id})
         Notification.create_notification(
             recipient=instance.patient,
             notification_type='appointment_booked',
             title=title,
             message=message,
             appointment_id=instance.id,
-            action_url=f'/appointments/detail/{instance.id}/',
+            action_url=appt_url,
             action_text='View Appointment',
             priority='high'
         )
         
         # Send to doctor
         doctor_title = "New Appointment Scheduled"
-        doctor_message = f"New appointment scheduled with {instance.patient.get_full_name()} on {instance.date_time.strftime('%B %d, %Y at %I:%M %p')}."
+        pn = instance.patient.get_full_name() or instance.patient.email
+        doctor_message = f"New appointment scheduled with {pn} on {instance.date_time.strftime('%B %d, %Y at %I:%M %p')}."
         
         Notification.create_notification(
             recipient=instance.doctor,
@@ -47,7 +57,7 @@ def appointment_notification_handler(sender, instance, created, **kwargs):
             message=doctor_message,
             sender=instance.patient,
             appointment_id=instance.id,
-            action_url=f'/appointments/detail/{instance.id}/',
+            action_url=appt_url,
             action_text='View Appointment',
             priority='medium'
         )
@@ -71,7 +81,7 @@ def appointment_notification_handler(sender, instance, created, **kwargs):
                         message=message,
                         sender=instance.doctor,
                         appointment_id=instance.id,
-                        action_url=f'/appointments/detail/{instance.id}/',
+                        action_url=_notify_url('appointments:appointment_detail', {'appointment_id': instance.id}),
                         action_text='View Appointment',
                         priority='high'
                     )
@@ -88,7 +98,7 @@ def appointment_notification_handler(sender, instance, created, **kwargs):
                         message=message,
                         sender=instance.doctor,
                         appointment_id=instance.id,
-                        action_url=f'/appointments/detail/{instance.id}/',
+                        action_url=_notify_url('appointments:appointment_detail', {'appointment_id': instance.id}),
                         action_text='View Details',
                         priority='high'
                     )
@@ -105,7 +115,7 @@ def appointment_notification_handler(sender, instance, created, **kwargs):
                         message=message,
                         sender=instance.doctor,
                         appointment_id=instance.id,
-                        action_url=f'/appointments/detail/{instance.id}/',
+                        action_url=_notify_url('appointments:appointment_detail', {'appointment_id': instance.id}),
                         action_text='View Details',
                         priority='medium'
                     )
@@ -116,19 +126,34 @@ def bill_notification_handler(sender, instance, created, **kwargs):
     """Handle bill-related notifications"""
     
     if created:
-        # New bill generated
-        title = "New Bill Generated"
-        message = f"A new bill of Rs. {instance.total_amount} has been generated for your appointment."
-        
+        bill_url = _notify_url('billing:bill_detail', {'bill_id': instance.id})
+        amt = instance.total_amount
+        # Patient: new bill
+        title = "New bill created"
+        message = f"A new bill of Rs. {amt} has been created. You can view details and pay from your billing page."
         Notification.create_notification(
             recipient=instance.patient,
             notification_type='bill_generated',
             title=title,
             message=message,
+            sender=instance.doctor,
             bill_id=instance.id,
-            action_url=f'/billing/detail/{instance.id}/',
-            action_text='Pay Bill',
+            action_url=bill_url,
+            action_text='View bill',
             priority='high'
+        )
+        # Doctor: confirmation (same event, separate inbox)
+        patient_label = instance.patient.get_full_name() or instance.patient.email
+        Notification.create_notification(
+            recipient=instance.doctor,
+            notification_type='bill_generated',
+            title=f"Bill #{instance.id} created",
+            message=f"A bill of Rs. {amt} for {patient_label} has been generated.",
+            sender=instance.patient,
+            bill_id=instance.id,
+            action_url=bill_url,
+            action_text='View bill',
+            priority='medium'
         )
     
     else:
@@ -148,7 +173,7 @@ def bill_notification_handler(sender, instance, created, **kwargs):
                     title=title,
                     message=message,
                     bill_id=instance.id,
-                    action_url=f'/billing/detail/{instance.id}/',
+                    action_url=_notify_url('billing:bill_detail', {'bill_id': instance.id}),
                     action_text='View Receipt',
                     priority='medium'
                 )
@@ -159,19 +184,31 @@ def prescription_notification_handler(sender, instance, created, **kwargs):
     """Handle prescription-related notifications"""
     
     if created:
-        # New prescription created
-        title = "New Prescription"
-        message = f"Dr. {instance.doctor.get_full_name()} has created a new prescription for you."
-        
+        rx_url = _notify_url('prescriptions:detail', {'prescription_id': instance.id})
+        dr_name = instance.doctor.get_full_name() or instance.doctor.email
+        pt_name = instance.patient.get_full_name() or instance.patient.email
+        # Patient
         Notification.create_notification(
             recipient=instance.patient,
             notification_type='prescription_created',
-            title=title,
-            message=message,
+            title='New prescription',
+            message=f"Dr. {dr_name} has created a new prescription for you.",
             sender=instance.doctor,
             prescription_id=instance.id,
-            action_url=f'/prescriptions/detail/{instance.id}/',
-            action_text='View Prescription',
+            action_url=rx_url,
+            action_text='View prescription',
+            priority='high'
+        )
+        # Doctor: confirmation in notification bell
+        Notification.create_notification(
+            recipient=instance.doctor,
+            notification_type='prescription_created',
+            title='Prescription saved',
+            message=f"Prescription #{instance.id} for {pt_name} has been recorded.",
+            sender=instance.patient,
+            prescription_id=instance.id,
+            action_url=rx_url,
+            action_text='View prescription',
             priority='medium'
         )
 
@@ -192,7 +229,7 @@ def medical_record_notification_handler(sender, instance, created, **kwargs):
             message=message,
             sender=instance.doctor,
             medical_record_id=instance.id,
-            action_url=f'/medical-records/detail/{instance.id}/',
+            action_url=_notify_url('medical_records:medical_record_detail', {'record_id': instance.id}),
             action_text='View Record',
             priority='medium'
         )

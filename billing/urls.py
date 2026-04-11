@@ -18,6 +18,7 @@ urlpatterns = [
     
     # Payment Processing - SIMPLE PAYMENT IS FIRST
     path('<int:bill_id>/pay/', pay_views.pay_view, name='pay'),
+    path('<int:bill_id>/payment/', pay_views.pay_view, name='payment'),
     path('<int:bill_id>/pay-fixed/', views.payment_view_fixed, name='payment_fixed'),
     path('<int:bill_id>/simple/', simple_views.simple_payment_view, name='simple_payment_new'),
     path('<int:bill_id>/simple-pay/', simple_payment.simple_payment_view, name='simple_payment'),

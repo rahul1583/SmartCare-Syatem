@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.urls import reverse, NoReverseMatch
 from django.utils import timezone
 
 User = get_user_model()
@@ -78,23 +79,21 @@ class Notification(models.Model):
             self.save(update_fields=['is_read', 'read_at'])
     
     def get_absolute_url(self):
-        """Get URL for notification action"""
+        """Get URL for notification action (linked resource, not notification detail)."""
         if self.action_url:
             return self.action_url
-        
-        # Default URLs based on notification type
-        url_mapping = {
-            'appointment_booked': f'/appointments/detail/{self.appointment_id}/',
-            'appointment_confirmed': f'/appointments/detail/{self.appointment_id}/',
-            'appointment_cancelled': f'/appointments/detail/{self.appointment_id}/',
-            'appointment_completed': f'/appointments/detail/{self.appointment_id}/',
-            'bill_paid': f'/billing/detail/{self.bill_id}/',
-            'bill_generated': f'/billing/detail/{self.bill_id}/',
-            'prescription_created': f'/prescriptions/detail/{self.prescription_id}/',
-            'medical_record_created': f'/medical-records/detail/{self.medical_record_id}/',
-        }
-        
-        return url_mapping.get(self.notification_type, '/dashboard/')
+        try:
+            if self.appointment_id:
+                return reverse('appointments:appointment_detail', kwargs={'appointment_id': self.appointment_id})
+            if self.bill_id and self.notification_type in ('bill_generated', 'bill_paid'):
+                return reverse('billing:bill_detail', kwargs={'bill_id': self.bill_id})
+            if self.prescription_id and self.notification_type == 'prescription_created':
+                return reverse('prescriptions:detail', kwargs={'prescription_id': self.prescription_id})
+            if self.medical_record_id and self.notification_type == 'medical_record_created':
+                return reverse('medical_records:medical_record_detail', kwargs={'record_id': self.medical_record_id})
+        except NoReverseMatch:
+            pass
+        return '/dashboard/'
     
     @classmethod
     def create_notification(cls, recipient, notification_type, title, message, 

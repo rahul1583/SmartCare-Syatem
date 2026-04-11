@@ -5,9 +5,9 @@
 {% block content %}
 <div class="min-h-screen bg-[#F8FAFC] py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-xl mx-auto">
-        <!-- Compact Profile Card -->
+        <!-- Profile Card -->
         <div class="bg-white rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
-            <!-- Shorter Header Section -->
+            <!-- Header Section -->
             <div class="relative bg-gradient-to-br from-slate-900 to-blue-950 p-6 pb-12">
                 <div class="absolute top-0 right-0 p-4">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/10 text-white backdrop-blur-md border border-white/10">
@@ -20,128 +20,413 @@
                         <div class="w-20 h-20 rounded-2xl bg-white p-1 shadow-xl">
                             <div class="w-full h-full rounded-[0.9rem] overflow-hidden bg-slate-100 flex items-center justify-center">
                                 {% if user.avatar %}
-                                    <img src="{{ user.avatar.url }}" alt="Profile" class="w-full h-full object-cover">
+                                    <img id="avatar-preview" src="{{ user.avatar.url }}" alt="Profile" class="w-full h-full object-cover">
                                 {% else %}
-                                    <span class="text-2xl font-black text-slate-300">
-                                        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
-                                    </span>
+                                    <div id="avatar-placeholder" class="w-full h-full bg-slate-100 flex items-center justify-center">
+                                        <span class="text-2xl font-black text-slate-300">
+                                            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                                        </span>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
                     
                     <div class="text-left">
-                        <h1 class="text-xl font-black text-white tracking-tight">
+                        <h1 id="display-name" class="text-xl font-black text-white tracking-tight">
                             {% if user.is_doctor %}Dr. {% endif %}{{ user.get_full_name|default:user.email }}
                         </h1>
-                        <p class="text-blue-200 text-xs font-medium opacity-70">{{ user.email }}</p>
+                        <p id="display-email" class="text-blue-200 text-xs font-medium opacity-70">{{ user.email }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- More Compact Content Section -->
+            <!-- Content Section -->
             <div class="px-6 py-8 -mt-8 relative">
-                <div class="bg-white rounded-[1.5rem] p-6 shadow-sm border border-slate-50">
-                    <!-- Compact Details Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- 1. Name -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-user text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ user.get_full_name|default:user.email }}</span>
+                <!-- View Mode Container -->
+                <div id="view-mode" class="{% if has_errors %}hidden{% endif %} space-y-6">
+                    <div class="bg-white rounded-[1.5rem] p-6 shadow-sm border border-slate-50">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ user.first_name|default:'-' }}</span>
+                                </div>
                             </div>
-                        </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ user.last_name|default:'-' }}</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
+                                    <span class="text-slate-700 text-sm font-bold truncate">{{ user.email }}</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ user.phone|default:'Not provided' }}</span>
+                                </div>
+                            </div>
 
-                        <!-- 2. Email -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
-                                <i class="fas fa-envelope text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold truncate">{{ user.email }}</span>
+                            {% if user.is_patient and profile %}
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date of Birth</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.date_of_birth|date:"M d, Y" }}</span>
+                                </div>
                             </div>
-                        </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.get_gender_display }}</span>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-2 space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.address|default:'Not provided' }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
 
-                        <!-- 3. Contact -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-phone text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ user.phone|default:'Not provided' }}</span>
+                            {% if user.is_doctor and profile %}
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialization</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.specialization }}</span>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- 4. Address -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-map-marker-alt text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ profile.address|default:'Not provided' }}</span>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Qualification</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.qualification }}</span>
+                                </div>
                             </div>
-                        </div>
-
-                        {% if user.is_patient and profile %}
-                        <!-- 5. Date of Birth -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date of Birth</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-calendar-alt text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ profile.date_of_birth|date:"M d, Y" }}</span>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Experience</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.experience_years }} Years</span>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- 6. Gender -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-venus-mars text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ profile.get_gender_display }}</span>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">License No.</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">{{ profile.license_number }}</span>
+                                </div>
                             </div>
-                        </div>
-                        {% endif %}
-
-                        {% if user.is_doctor and profile %}
-                        <!-- Doctor Specific Info -->
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialization</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-stethoscope text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ profile.specialization }}</span>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Consultation Fee</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="text-slate-700 text-sm font-bold">Rs. {{ profile.consultation_fee }}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Experience</label>
-                            <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <i class="fas fa-briefcase text-blue-500 mr-3 text-xs"></i>
-                                <span class="text-slate-700 text-sm font-bold">{{ profile.experience_years }} Years</span>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Availability</label>
+                                <div class="flex items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <span class="{% if profile.is_available %}text-emerald-600{% else %}text-rose-600{% endif %} text-sm font-bold">
+                                        {{ profile.is_available|yesno:"Available,Not Available" }}
+                                    </span>
+                                </div>
                             </div>
+                            <div class="sm:col-span-2 space-y-1">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Bio</label>
+                                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p class="text-slate-700 text-sm font-medium leading-relaxed">{{ profile.bio|default:'No bio provided' }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-center gap-3">
+                        <button id="btn-edit" class="flex-1 px-6 py-3 bg-slate-900 text-white font-black text-xs rounded-xl hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-edit"></i>
+                            Edit Profile
+                        </button>
+                        <a href="{% url 'accounts:dashboard' %}" class="flex-1 px-6 py-3 bg-white text-slate-900 border border-slate-200 font-black text-xs rounded-xl hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-th-large"></i>
+                            Dashboard
+                        </a>
                     </div>
                 </div>
 
-                <!-- Very Compact Footer Actions -->
-                <div class="mt-6 flex items-center justify-center gap-3">
-                    <a href="{% url 'accounts:profile_update' %}" class="flex-1 px-6 py-3 bg-slate-900 text-white font-black text-xs rounded-xl hover:bg-slate-800 transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fas fa-edit"></i>
-                        Edit
-                    </a>
-                    <a href="{% url 'accounts:dashboard' %}" class="flex-1 px-6 py-3 bg-white text-slate-900 border border-slate-200 font-black text-xs rounded-xl hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fas fa-th-large"></i>
-                        Dashboard
-                    </a>
-                </div>
+                <!-- Edit Mode Container (Hidden by default) -->
+                <form id="edit-mode" method="POST" enctype="multipart/form-data" class="{% if not has_errors %}hidden{% endif %} space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if user_form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-2xl">
+                            {% for error in user_form.non_field_errors %}
+                                <p class="text-red-600 text-xs font-bold">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if profile_form.non_field_errors %}
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-2xl">
+                            {% for error in profile_form.non_field_errors %}
+                                <p class="text-red-600 text-xs font-bold">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="bg-white rounded-[1.5rem] p-6 shadow-sm border border-slate-50">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- User Fields -->
+                            <div class="space-y-1">
+                                <label for="id_first_name" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">First Name *</label>
+                                <input type="text" name="first_name" id="id_first_name" value="{{ user_form.first_name.value|default:user.first_name }}" required
+                                    class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                <p class="error-msg text-[10px] text-red-500 font-bold mt-1 hidden"></p>
+                                {% if user_form.first_name.errors %}
+                                    {% for error in user_form.first_name.errors %}
+                                        <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-1">
+                                <label for="id_last_name" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Last Name *</label>
+                                <input type="text" name="last_name" id="id_last_name" value="{{ user_form.last_name.value|default:user.last_name }}" required
+                                    class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                <p class="error-msg text-[10px] text-red-500 font-bold mt-1 hidden"></p>
+                                {% if user_form.last_name.errors %}
+                                    {% for error in user_form.last_name.errors %}
+                                        <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-1">
+                                <label for="id_email" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email (Gmail only) *</label>
+                                <input type="email" name="email" id="id_email" value="{{ user_form.email.value|default:user.email }}" required
+                                    class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                <p class="error-msg text-[10px] text-red-500 font-bold mt-1 hidden"></p>
+                                {% if user_form.email.errors %}
+                                    {% for error in user_form.email.errors %}
+                                        <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-1">
+                                <label for="id_phone" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
+                                <input type="text" name="phone" id="id_phone" value="{{ user_form.phone.value|default:user.phone|default:'' }}"
+                                    class="w-full p-3 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 text-sm font-bold focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                {% if user_form.phone.errors %}
+                                    {% for error in user_form.phone.errors %}
+                                        <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Avatar Upload -->
+                            <div class="sm:col-span-2 space-y-1">
+                                <label for="id_avatar" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Profile Image</label>
+                                <input type="file" name="avatar" id="id_avatar" accept="image/*"
+                                    class="w-full p-2 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 text-xs font-bold file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-slate-900 file:text-white hover:file:bg-slate-800">
+                                {% if user_form.avatar.errors %}
+                                    {% for error in user_form.avatar.errors %}
+                                        <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Profile Fields -->
+                            {% if profile_form %}
+                                {% for field in profile_form %}
+                                <div class="{% if field.name == 'address' or field.name == 'bio' %}sm:col-span-2{% endif %} space-y-1">
+                                    <label for="{{ field.id_for_label }}" class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                                        {{ field.label }} {% if field.field.required %}*{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <p class="text-[10px] text-red-500 font-bold mt-1">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-3">
+                        <button type="submit" id="btn-save" class="flex-1 px-6 py-3 bg-blue-600 text-white font-black text-xs rounded-xl hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                        <button type="button" id="btn-cancel" class="flex-1 px-6 py-3 bg-white text-slate-900 border border-slate-200 font-black text-xs rounded-xl hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
+
+<style>
+    /* Styling for Django-rendered fields in the edit form */
+    #edit-mode input[type="text"],
+    #edit-mode input[type="email"],
+    #edit-mode input[type="number"],
+    #edit-mode input[type="date"],
+    #edit-mode select,
+    #edit-mode textarea {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #F8FAFC;
+        border-radius: 0.75rem;
+        border: 1px solid #F1F5F9;
+        color: #334155;
+        font-size: 0.875rem;
+        font-weight: 700;
+        outline: none;
+        transition: all 0.2s;
+    }
+    #edit-mode input:focus,
+    #edit-mode select:focus,
+    #edit-mode textarea:focus {
+        border-color: transparent;
+        box-shadow: 0 0 0 2px #3B82F6;
+    }
+    .input-error {
+        border-color: #EF4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewMode = document.getElementById('view-mode');
+        const editMode = document.getElementById('edit-mode');
+        const btnEdit = document.getElementById('btn-edit');
+        const btnCancel = document.getElementById('btn-cancel');
+        const editForm = document.getElementById('edit-mode');
+        
+        // Toggle modes
+        btnEdit.addEventListener('click', () => {
+            viewMode.classList.add('hidden');
+            editMode.classList.remove('hidden');
+        });
+
+        btnCancel.addEventListener('click', () => {
+            editMode.classList.add('hidden');
+            viewMode.classList.remove('hidden');
+            // Reset errors
+            document.querySelectorAll('.error-msg').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        });
+
+        // Real-time Validation
+        const inputs = {
+            firstName: document.getElementById('id_first_name'),
+            lastName: document.getElementById('id_last_name'),
+            email: document.getElementById('id_email')
+        };
+
+        const validateField = (field, condition, errorMsg) => {
+            const errorEl = field.nextElementSibling;
+            if (!condition) {
+                field.classList.add('input-error');
+                errorEl.textContent = errorMsg;
+                errorEl.classList.remove('hidden');
+                return false;
+            } else {
+                field.classList.remove('input-error');
+                errorEl.classList.add('hidden');
+                return true;
+            }
+        };
+
+        const validateEmail = (email) => {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!re.test(email)) return { valid: false, msg: "Invalid email format" };
+            if (!email.toLowerCase().endsWith('@gmail.com')) return { valid: false, msg: "Only @gmail.com emails allowed" };
+            return { valid: true };
+        };
+
+        // Event listeners for real-time validation
+        inputs.firstName.addEventListener('input', () => {
+            validateField(inputs.firstName, inputs.firstName.value.trim().length > 0, "First name is required");
+        });
+
+        inputs.lastName.addEventListener('input', () => {
+            validateField(inputs.lastName, inputs.lastName.value.trim().length > 0, "Last name is required");
+        });
+
+        inputs.email.addEventListener('input', () => {
+            const res = validateEmail(inputs.email.value.trim());
+            validateField(inputs.email, res.valid, res.msg);
+        });
+
+        // Generic validation for other required fields
+        const otherRequiredInputs = editForm.querySelectorAll('input[required], select[required], textarea[required]');
+        otherRequiredInputs.forEach(input => {
+            if (Object.values(inputs).includes(input)) return; // Skip already handled inputs
+            
+            input.addEventListener('input', () => {
+                const errorEl = input.nextElementSibling;
+                if (input.value.trim().length === 0) {
+                    input.classList.add('input-error');
+                    if (errorEl && errorEl.classList.contains('error-msg')) {
+                        errorEl.textContent = "This field is required";
+                        errorEl.classList.remove('hidden');
+                    }
+                } else {
+                    input.classList.remove('input-error');
+                    if (errorEl && errorEl.classList.contains('error-msg')) {
+                        errorEl.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Final validation on submit
+        editForm.addEventListener('submit', function(e) {
+            const isFirstNameValid = validateField(inputs.firstName, inputs.firstName.value.trim().length > 0, "First name is required");
+            const isLastNameValid = validateField(inputs.lastName, inputs.lastName.value.trim().length > 0, "Last name is required");
+            const emailRes = validateEmail(inputs.email.value.trim());
+            const isEmailValid = validateField(inputs.email, emailRes.valid, emailRes.msg);
+
+            if (!isFirstNameValid || !isLastNameValid || !isEmailValid) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = document.querySelector('.input-error');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // Image preview
+        const avatarInput = document.getElementById('id_avatar');
+        const avatarPreview = document.getElementById('avatar-preview');
+        
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (avatarPreview) {
+                            avatarPreview.src = e.target.result;
+                        } else {
+                            // If no preview img exists, replace placeholder
+                            const placeholder = document.getElementById('avatar-placeholder');
+                            if (placeholder) {
+                                const img = document.createElement('img');
+                                img.id = 'avatar-preview';
+                                img.src = e.target.result;
+                                img.className = 'w-full h-full object-cover';
+                                placeholder.parentNode.replaceChild(img, placeholder);
+                            }
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

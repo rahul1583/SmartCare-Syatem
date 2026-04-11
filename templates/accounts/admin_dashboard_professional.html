@@ -128,6 +128,78 @@
             </div>
         </div>
 
+        <!-- Pending Doctor Approvals (Simple & Detailed) -->
+        {% if pending_doctors %}
+        <div class="mb-10">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Pending Approvals</h2>
+            
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                <th class="px-6 py-3">Doctor</th>
+                                <th class="px-6 py-3">Contact & License</th>
+                                <th class="px-6 py-3">Qualification & Fee</th>
+                                <th class="px-6 py-3">Proof</th>
+                                <th class="px-6 py-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for profile in pending_doctors %}
+                            <tr id="doctor-row-{{ profile.id }}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900">Dr. {{ profile.user.get_full_name }}</span>
+                                        <span class="text-[11px] text-gray-500">{{ profile.user.email }}</span>
+                                        {% if profile.bio %}
+                                            <p class="text-[10px] text-gray-400 italic mt-1 max-w-[200px] truncate" title="{{ profile.bio }}">"{{ profile.bio }}"</p>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-xs font-bold text-gray-700"><i class="fas fa-phone mr-1 text-[10px] text-gray-400"></i>{{ profile.user.phone|default:'No Phone' }}</span>
+                                        <span class="text-[10px] text-blue-600 font-bold uppercase">License: {{ profile.license_number }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-xs font-bold text-blue-600">{{ profile.specialization }}</span>
+                                        <span class="text-[10px] text-gray-500">{{ profile.qualification }} • {{ profile.experience_years }} Yrs Exp.</span>
+                                        <span class="text-[10px] font-bold text-emerald-600">Fee: Rs. {{ profile.consultation_fee }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if profile.doctor_certificate %}
+                                        <a href="{{ profile.doctor_certificate.url }}" target="_blank" class="text-[11px] font-bold text-indigo-600 hover:underline">
+                                            View Cert
+                                        </a>
+                                    {% else %}
+                                        <span class="text-[11px] text-gray-400">No proof</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="approveDoctor({{ profile.id }})" 
+                                                class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-[10px] font-bold hover:bg-green-700">
+                                            Approve
+                                        </button>
+                                        <button onclick="rejectDoctor({{ profile.id }})" 
+                                                class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-[10px] font-bold hover:bg-red-700">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Professional Management Grid -->
         <div class="mb-14">
             <div class="flex items-center justify-between mb-8">
@@ -186,14 +258,14 @@
             </div>
         </div>
 
-        <!-- Recent Activities Section -->
+        <!-- Today's Activities Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <!-- Latest Appointments -->
+            <!-- Today's Appointments -->
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
-                        <i class="fas fa-clock text-indigo-500"></i>
-                        Recent Appointments
+                        <i class="fas fa-calendar-day text-indigo-500"></i>
+                        Today's Appointments
                     </h3>
                     <a href="{% url 'appointments:appointment_list' %}" class="text-xs font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest px-3 py-1.5 bg-indigo-50 rounded-lg transition-colors">See All</a>
                 </div>
@@ -212,7 +284,7 @@
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <div class="text-xs font-black text-slate-900">{{ appt.date_time|date:"M d, Y" }}</div>
+                                    <div class="text-xs font-black text-slate-900">{{ appt.date_time|time:"g:i A" }}</div>
                                     <div class="mt-1">
                                         <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter
                                             {% if appt.status == 'confirmed' %}bg-emerald-100 text-emerald-700
@@ -228,18 +300,18 @@
                     {% else %}
                         <div class="text-center py-10">
                             <i class="fas fa-inbox text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-400 font-bold text-sm">No recent appointments</p>
+                            <p class="text-slate-400 font-bold text-sm">No appointments scheduled for today</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Recent Billing -->
+            <!-- Today's Billing -->
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
-                        <i class="fas fa-receipt text-amber-500"></i>
-                        Recent Transactions
+                        <i class="fas fa-file-invoice-dollar text-amber-500"></i>
+                        Today's Transactions
                     </h3>
                     <a href="{% url 'billing:bill_list' %}" class="text-xs font-black text-amber-600 hover:text-amber-800 uppercase tracking-widest px-3 py-1.5 bg-amber-50 rounded-lg transition-colors">See All</a>
                 </div>
@@ -273,7 +345,7 @@
                     {% else %}
                         <div class="text-center py-10">
                             <i class="fas fa-receipt text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-400 font-bold text-sm">No recent transactions</p>
+                            <p class="text-slate-400 font-bold text-sm">No transactions today</p>
                         </div>
                     {% endif %}
                 </div>
@@ -281,4 +353,62 @@
         </div>
     </div>
 </div>
+
+<script>
+function approveDoctor(doctorId) {
+    if (!confirm('Are you sure you want to approve this doctor?')) return;
+    
+    fetch(`/accounts/admin/doctors/${doctorId}/approve/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.getElementById(`doctor-row-${doctorId}`);
+            row.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                row.remove();
+                if (document.querySelectorAll('tbody tr').length === 0) {
+                    location.reload();
+                }
+            }, 500);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => alert('Error approving doctor: ' + error));
+}
+
+function rejectDoctor(doctorId) {
+    if (!confirm('Are you sure you want to reject and remove this registration? This cannot be undone.')) return;
+    
+    fetch(`/accounts/admin/doctors/${doctorId}/reject/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.getElementById(`doctor-row-${doctorId}`);
+            row.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => {
+                row.remove();
+                if (document.querySelectorAll('tbody tr').length === 0) {
+                    location.reload();
+                }
+            }, 500);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => alert('Error rejecting doctor: ' + error));
+}
+</script>
 {% endblock %}

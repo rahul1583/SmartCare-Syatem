@@ -13,7 +13,7 @@
             </div>
             <div class="flex space-x-3">
                 <a href="{% url 'appointments:appointment_list' %}" class="bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-colors">
-                    <i class="fas fa-list mr-2"></i>My Appointments
+                    <i class="fas fa-list mr-2"></i>{% if user.is_doctor %}Patient Appointments{% elif user.is_admin %}All Appointments{% else %}My Appointments{% endif %}
                 </a>
             </div>
         </div>
@@ -237,12 +237,14 @@
             {% endif %}
         </div>
         
+        {% if user.is_patient %}
         <!-- Quick Book Button Section -->
         <div class="mt-8 text-center">
             <button onclick="showBookingForm()" class="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold shadow-lg">
                 <i class="fas fa-plus mr-2"></i>Quick Book Appointment
             </button>
         </div>
+        {% endif %}
     </div>
 </div>
 

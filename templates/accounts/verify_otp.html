@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Code - SmartCare System{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-80px)] bg-[#F8FAFC] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <div class="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden">
+            <div class="p-8 sm:p-12">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-[1.25rem] flex items-center justify-center shadow-xl shadow-emerald-500/20">
+                            <i class="fas fa-shield-halved text-white text-3xl"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Verify Code</h1>
+                    <p class="text-slate-500 font-medium">We've sent a 6-digit code to <strong>{{ email }}</strong>. Enter it below to continue.</p>
+                </div>
+
+                {% if messages %}
+                    <div class="mb-6 space-y-3">
+                        {% for message in messages %}
+                            <div class="rounded-xl border px-4 py-3 text-sm
+                                {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-700
+                                {% else %}border-blue-200 bg-blue-50 text-blue-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if dev_otp_code %}
+                <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-center">
+                    <p class="text-xs font-bold uppercase tracking-wide text-amber-800 mb-1">Development only</p>
+                    <p class="text-sm text-amber-900 mb-2">Your reset code (email delivery failed):</p>
+                    <p class="font-black text-3xl tracking-[0.35em] text-amber-950 tabular-nums">{{ dev_otp_code }}</p>
+                </div>
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    <div class="space-y-1.5">
+                        <label for="id_otp" class="block text-slate-700 text-sm font-bold ml-1">6-Digit Code</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+                                <i class="fas fa-lock text-sm"></i>
+                            </div>
+                            <input type="text" name="otp" id="id_otp" required maxlength="6"
+                                   class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-black tracking-[0.5em] text-center text-xl"
+                                   placeholder="000000">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 px-6 bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 transition-all duration-300 font-black text-base active:scale-[0.98]">
+                        Verify Code
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-slate-500 text-sm font-medium">Didn't receive the code?</p>
+                    <a href="{% url 'accounts:forgot_password_otp' %}" class="text-emerald-600 hover:text-emerald-700 font-bold text-sm transition-colors mt-1 inline-block">
+                        Resend Code
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

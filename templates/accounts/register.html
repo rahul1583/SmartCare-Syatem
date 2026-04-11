@@ -19,7 +19,7 @@
                     <p class="text-slate-500 font-medium">Experience the future of healthcare today</p>
                 </div>
 
-                <form method="post" class="space-y-5">
+                <form method="post" class="space-y-5" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     <!-- Name Fields Row -->
@@ -34,6 +34,7 @@
                                        class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                                        placeholder="First Name">
                             </div>
+                            <p id="first-name-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                             {% if form.first_name.errors %}
                                 <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
                                     <i class="fas fa-circle-exclamation"></i>
@@ -51,6 +52,7 @@
                                        class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                                        placeholder="Last Name">
                             </div>
+                            <p id="last-name-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                             {% if form.last_name.errors %}
                                 <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
                                     <i class="fas fa-circle-exclamation"></i>
@@ -71,6 +73,7 @@
                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                                    placeholder="name@gmail.com">
                         </div>
+                        <p id="email-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                         <div class="flex items-center gap-1.5 ml-1">
                             <span class="w-1 h-1 bg-blue-500 rounded-full"></span>
                             <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Only Gmail accounts are accepted</p>
@@ -96,12 +99,12 @@
                                     <option value="" disabled selected>Select Role</option>
                                     <option value="patient">Patient</option>
                                     <option value="doctor">Doctor</option>
-                                    <option value="admin">Admin</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
                                     <i class="fas fa-chevron-down text-xs"></i>
                                 </div>
                             </div>
+                            <p id="role-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                             {% if form.role.errors %}
                                 <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
                                     <i class="fas fa-circle-exclamation"></i>
@@ -127,6 +130,25 @@
                             {% endif %}
                         </div>
                     </div>
+
+                    <!-- Doctor Certificate Field (Hidden by default) -->
+                    <div id="doctor_cert_container" class="space-y-1.5 hidden">
+                        <label for="id_doctor_certificate" class="block text-slate-700 text-sm font-bold ml-1">Doctor Certificate (Proof)</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                <i class="fas fa-file-medical text-sm"></i>
+                            </div>
+                            <input type="file" name="doctor_certificate" id="id_doctor_certificate" accept="application/pdf,image/*"
+                                   class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 font-medium file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider ml-1">Upload your medical license or certificate (PDF or Image)</p>
+                        {% if form.doctor_certificate.errors %}
+                            <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
+                                <i class="fas fa-circle-exclamation"></i>
+                                {% for error in form.doctor_certificate.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
                     
                     <!-- Password Fields Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -137,9 +159,14 @@
                                     <i class="fas fa-lock text-sm"></i>
                                 </div>
                                 <input type="password" name="password1" id="id_password1" required
-                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       class="w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                                        placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('id_password1', 'eye-icon-1')" 
+                                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors">
+                                    <i id="eye-icon-1" class="fas fa-eye text-sm"></i>
+                                </button>
                             </div>
+                            <p id="password1-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                             {% if form.password1.errors %}
                                 <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
                                     <i class="fas fa-circle-exclamation"></i>
@@ -154,9 +181,14 @@
                                     <i class="fas fa-shield-halved text-sm"></i>
                                 </div>
                                 <input type="password" name="password2" id="id_password2" required
-                                       class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                                       class="w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                                        placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('id_password2', 'eye-icon-2')" 
+                                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-500 transition-colors">
+                                    <i id="eye-icon-2" class="fas fa-eye text-sm"></i>
+                                </button>
                             </div>
+                            <p id="password2-error" class="text-red-500 text-[11px] font-bold mt-1 ml-1 hidden"></p>
                             {% if form.password2.errors %}
                                 <p class="text-red-500 text-xs font-bold mt-1.5 ml-1 flex items-center gap-1">
                                     <i class="fas fa-circle-exclamation"></i>
@@ -176,22 +208,6 @@
                     </div>
                 </form>
 
-                <!-- Divider -->
-                <div class="relative my-10">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-slate-100"></div>
-                    </div>
-                    <div class="relative flex justify-center text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        <span class="px-4 bg-white">Social Connect</span>
-                    </div>
-                </div>
-
-                <!-- Google Sign-in -->
-                <a href="{% url 'accounts:google_login_start' %}" class="w-full flex items-center justify-center gap-3 px-6 py-4 border border-slate-200 rounded-2xl bg-white hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 group">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="w-5 h-5 group-hover:scale-110 transition-transform">
-                    <span class="text-slate-700 font-bold text-sm">Continue with Google</span>
-                </a>
-
                 <!-- Footer Link -->
                 <div class="mt-10 text-center">
                     <p class="text-slate-500 font-semibold text-sm">
@@ -206,4 +222,125 @@
         </div>
     </div>
 </div>
+
+<script>
+// Prevent "Resubmit form" dialog on refresh
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
+function togglePassword(inputId, iconId) {
+    const passwordInput = document.getElementById(inputId);
+    const eyeIcon = document.getElementById(iconId);
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+
+// Doctor Certificate Toggle
+document.getElementById('id_role').addEventListener('change', function() {
+    const certContainer = document.getElementById('doctor_cert_container');
+    const certInput = document.getElementById('id_doctor_certificate');
+    
+    if (this.value === 'doctor') {
+        certContainer.classList.remove('hidden');
+        certInput.setAttribute('required', 'required');
+    } else {
+        certContainer.classList.add('hidden');
+        certInput.removeAttribute('required');
+        certInput.value = ''; // Clear file if switching back to patient
+    }
+});
+
+// Run on page load in case of form errors
+window.addEventListener('load', function() {
+    const roleSelect = document.getElementById('id_role');
+    const certContainer = document.getElementById('doctor_cert_container');
+    const certInput = document.getElementById('id_doctor_certificate');
+    
+    if (roleSelect.value === 'doctor') {
+        certContainer.classList.remove('hidden');
+        certInput.setAttribute('required', 'required');
+    }
+});
+
+// Real-time Validation for Register
+const regForm = document.querySelector('form');
+const regInputs = {
+    firstName: document.getElementById('id_first_name'),
+    lastName: document.getElementById('id_last_name'),
+    email: document.getElementById('id_email'),
+    role: document.getElementById('id_role'),
+    password1: document.getElementById('id_password1'),
+    password2: document.getElementById('id_password2')
+};
+
+const regErrors = {
+    firstName: document.getElementById('first-name-error'),
+    lastName: document.getElementById('last-name-error'),
+    email: document.getElementById('email-error'),
+    role: document.getElementById('role-error'),
+    password1: document.getElementById('password1-error'),
+    password2: document.getElementById('password2-error')
+};
+
+const validateRegField = (field, condition, errorMsg, errorEl) => {
+    if (!condition) {
+        field.classList.add('border-red-500');
+        errorEl.textContent = errorMsg;
+        errorEl.classList.remove('hidden');
+        return false;
+    } else {
+        field.classList.remove('border-red-500');
+        errorEl.classList.add('hidden');
+        return true;
+    }
+};
+
+const validateRegFirstName = () => validateRegField(regInputs.firstName, regInputs.firstName.value.trim().length > 0, "First name is required", regErrors.firstName);
+const validateRegLastName = () => validateRegField(regInputs.lastName, regInputs.lastName.value.trim().length > 0, "Last name is required", regErrors.lastName);
+const validateRegEmail = () => {
+    const email = regInputs.email.value.trim();
+    const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    if (email === "") return validateRegField(regInputs.email, false, "Email is required", regErrors.email);
+    if (!gmailPattern.test(email)) return validateRegField(regInputs.email, false, "Please enter a valid Gmail address", regErrors.email);
+    return validateRegField(regInputs.email, true, "", regErrors.email);
+};
+const validateRegRole = () => validateRegField(regInputs.role, regInputs.role.value !== "", "Please select a role", regErrors.role);
+const validateRegPassword1 = () => validateRegField(regInputs.password1, regInputs.password1.value.length >= 8, "Password must be at least 8 characters", regErrors.password1);
+const validateRegPassword2 = () => validateRegField(regInputs.password2, regInputs.password2.value === regInputs.password1.value, "Passwords do not match", regErrors.password2);
+
+regInputs.firstName.addEventListener('input', validateRegFirstName);
+regInputs.lastName.addEventListener('input', validateRegLastName);
+regInputs.email.addEventListener('input', validateRegEmail);
+regInputs.role.addEventListener('change', validateRegRole);
+regInputs.password1.addEventListener('input', () => {
+    validateRegPassword1();
+    if (regInputs.password2.value !== "") validateRegPassword2();
+});
+regInputs.password2.addEventListener('input', validateRegPassword2);
+
+regForm.addEventListener('submit', function(e) {
+    const isFirstNameValid = validateRegFirstName();
+    const isLastNameValid = validateRegLastName();
+    const isEmailValid = validateRegEmail();
+    const isRoleValid = validateRegRole();
+    const isPassword1Valid = validateRegPassword1();
+    const isPassword2Valid = validateRegPassword2();
+
+    if (!isFirstNameValid || !isLastNameValid || !isEmailValid || !isRoleValid || !isPassword1Valid || !isPassword2Valid) {
+        e.preventDefault();
+        // Scroll to first error
+        const firstError = document.querySelector('.border-red-500');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+</script>
 {% endblock %}

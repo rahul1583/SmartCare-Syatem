@@ -14,12 +14,133 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.db import models
 from datetime import datetime, timedelta
-from .models import User, PatientProfile, DoctorProfile
+from django.conf import settings
+import logging
+import random
+import string
+import os
+from .models import User, PatientProfile, DoctorProfile, PasswordResetOTP
+from .email_helpers import delivery_error_user_message, send_password_reset_otp_email
+
+logger = logging.getLogger(__name__)
+
+def generate_otp(length=6):
+    return ''.join(random.choices(string.digits, k=length))
+
+def forgot_password_otp_view(request):
+    if request.method == 'POST':
+        email = (request.POST.get('email') or '').strip().lower()
+        try:
+            user = User.objects.get(email__iexact=email)
+            otp_code = generate_otp()
+            PasswordResetOTP.objects.create(user=user, otp=otp_code)
+
+            subject = 'Password Reset OTP - SmartCare System'
+            message = f'Your OTP for password reset is: {otp_code}. It is valid for 10 minutes.'
+
+            try:
+                send_password_reset_otp_email(email, subject, message)
+            except Exception as exc:
+                logger.exception('Password reset OTP email failed for %s', email)
+                if (
+                    settings.DEBUG
+                    and getattr(settings, 'EMAIL_DEV_OTP_FALLBACK', True)
+                ):
+                    request.session['reset_email'] = email
+                    request.session['dev_otp_display'] = otp_code
+                    messages.success(
+                        request,
+                        'Use the verification code shown on the next page to continue.',
+                    )
+                    messages.warning(
+                        request,
+                        'Email could not be sent. Showing the code for local development only — '
+                        'add RESEND_API_KEY to .env or fix Gmail App Password for real email.',
+                    )
+                    return redirect('accounts:verify_otp')
+                PasswordResetOTP.objects.filter(user=user, otp=otp_code).delete()
+                messages.error(request, delivery_error_user_message(exc))
+                return render(request, 'accounts/password_reset_otp.html')
+
+            request.session['reset_email'] = email
+            request.session.pop('dev_otp_display', None)
+            messages.success(request, 'OTP has been sent to your email.')
+            if 'console' in (settings.EMAIL_BACKEND or '') and not getattr(
+                settings, 'RESEND_API_KEY', ''
+            ):
+                messages.info(
+                    request,
+                    'Development mode: the message was printed to the server console, not sent to a real inbox.',
+                )
+            return redirect('accounts:verify_otp')
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with this email address.')
+
+    return render(request, 'accounts/password_reset_otp.html')
+
+def verify_otp_view(request):
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect('accounts:forgot_password_otp')
+        
+    if request.method == 'POST':
+        otp_entered = request.POST.get('otp', '')
+        try:
+            user = User.objects.get(email__iexact=email)
+            otp_record = PasswordResetOTP.objects.filter(user=user, otp=otp_entered).last()
+            
+            if otp_record and otp_record.is_valid():
+                otp_record.is_verified = True
+                otp_record.save()
+                request.session['otp_verified'] = True
+                request.session.pop('dev_otp_display', None)
+                return redirect('accounts:reset_password_otp')
+            else:
+                messages.error(request, 'Invalid or expired OTP.')
+        except User.DoesNotExist:
+            return redirect('accounts:forgot_password_otp')
+            
+    ctx = {'email': email}
+    if settings.DEBUG and request.session.get('dev_otp_display'):
+        ctx['dev_otp_code'] = request.session.get('dev_otp_display')
+    return render(request, 'accounts/verify_otp.html', ctx)
+
+def reset_password_otp_view(request):
+    email = request.session.get('reset_email')
+    is_verified = request.session.get('otp_verified')
+    
+    if not email or not is_verified:
+        return redirect('accounts:forgot_password_otp')
+        
+    if request.method == 'POST':
+        password = request.POST.get('password1', '')
+        password_confirm = request.POST.get('password2', '')
+        
+        if password == password_confirm:
+            if len(password) >= 8:
+                try:
+                    user = User.objects.get(email__iexact=email)
+                    user.set_password(password)
+                    user.save()
+                    
+                    # Clear session
+                    del request.session['reset_email']
+                    del request.session['otp_verified']
+                    
+                    messages.success(request, 'Password reset successful. You can now log in.')
+                    return redirect('accounts:login')
+                except User.DoesNotExist:
+                    return redirect('accounts:forgot_password_otp')
+            else:
+                messages.error(request, 'Password must be at least 8 characters long.')
+        else:
+            messages.error(request, 'Passwords do not match.')
+            
+    return render(request, 'accounts/reset_password_otp.html')
 from .forms import UserRegistrationForm, PatientProfileForm, DoctorProfileForm, UserUpdateForm
 from appointments.models import Appointment
 from prescriptions.models import Prescription
 from billing.models import Bill
-import os
 
 def _google_login_enabled():
     google_client_id = os.getenv('GOOGLE_CLIENT_ID', '').strip()
@@ -147,7 +268,7 @@ class CustomLoginView(SuccessMessageMixin, LoginView):
 
 def register_view(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 user = form.save()
@@ -161,20 +282,26 @@ def register_view(request):
                         gender='M'  # Default gender
                     )
                 elif user.is_doctor:
+                    # Get uploaded certificate
+                    doctor_certificate = form.cleaned_data.get('doctor_certificate')
+                    
                     DoctorProfile.objects.create(
                         user=user,
                         specialization='General Practice',
                         qualification='MBBS',
                         experience_years=0,
                         license_number='TEMP-' + str(user.id),
-                        consultation_fee=500.00
+                        consultation_fee=500.00,
+                        doctor_certificate=doctor_certificate,
+                        is_approved=False
                     )
                 elif user.is_admin:
                     # Admin users don't need additional profiles by default
                     # They can access admin features directly
                     pass
                 
-                login(request, user)
+                # Specify the backend when multiple are configured
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(request, 'Registration successful! Welcome to SmartCare.')
                 if user.is_patient:
                     return redirect('accounts:patient_dashboard')
@@ -196,74 +323,62 @@ def register_view(request):
 @login_required
 def profile_view(request):
     user = request.user
-    if user.is_patient:
-        profile = getattr(user, 'patient_profile', None)
-        form_class = PatientProfileForm
-    elif user.is_doctor:
-        profile = getattr(user, 'doctor_profile', None)
-        form_class = DoctorProfileForm
-    else:
-        # For admin users, create a simple profile-like object
-        profile = type('Profile', (), {
-            'profile_image': getattr(user, 'profile_image', None)
-        })()
-        form_class = None
-    
-    context = {
-        'user': user,
-        'profile': profile,
-        'form_class': form_class,
-    }
-    return render(request, 'accounts/profile.html', context)
-
-@login_required
-def profile_update_view(request):
-    user = request.user
     user_form = UserUpdateForm(instance=user)
     profile_form = None
+    profile = None
+    has_errors = False
 
     if user.is_patient:
-        try:
-            profile = user.patient_profile
-        except PatientProfile.DoesNotExist:
-            profile = None
+        profile, created = PatientProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                'date_of_birth': '2000-01-01',
+                'gender': 'M'
+            }
+        )
         profile_form = PatientProfileForm(instance=profile)
     elif user.is_doctor:
-        try:
-            profile = user.doctor_profile
-        except DoctorProfile.DoesNotExist:
-            profile = None
+        profile, created = DoctorProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                'specialization': 'General Practice',
+                'qualification': 'MBBS',
+                'experience_years': 0,
+                'license_number': f'TEMP-{user.id}',
+                'consultation_fee': 500.00
+            }
+        )
         profile_form = DoctorProfileForm(instance=profile)
 
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, request.FILES, instance=user)
         forms_valid = user_form.is_valid()
 
-        if user.is_patient and profile_form:
-            try:
-                prof = user.patient_profile
-            except PatientProfile.DoesNotExist:
-                prof = None
-            profile_form = PatientProfileForm(request.POST, instance=prof)
+        if user.is_patient:
+            profile_form = PatientProfileForm(request.POST, instance=profile)
             forms_valid = forms_valid and profile_form.is_valid()
-        elif user.is_doctor and profile_form:
-            try:
-                prof = user.doctor_profile
-            except DoctorProfile.DoesNotExist:
-                prof = None
-            profile_form = DoctorProfileForm(request.POST, instance=prof)
+        elif user.is_doctor:
+            profile_form = DoctorProfileForm(request.POST, instance=profile)
             forms_valid = forms_valid and profile_form.is_valid()
 
         if forms_valid:
             user_form.save()
-            if profile_form and profile_form.has_changed():
-                profile = profile_form.save(commit=False)
-                profile.user = user
-                profile.save()
+            if profile_form:
+                profile_form.save()
             messages.success(request, 'Profile updated successfully!')
-            return redirect('accounts:dashboard')
+            return redirect('accounts:profile')
+        else:
+            has_errors = True
+            messages.error(request, 'Please correct the errors below.')
 
-    return render(request, 'accounts/profile_update.html', {'user_form': user_form, 'profile_form': profile_form})
+    context = {
+        'user': user,
+        'profile': profile,
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'has_errors': has_errors,
+    }
+    return render(request, 'accounts/profile.html', context)
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     def dispatch(self, request, *args, **kwargs):
@@ -336,62 +451,68 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 @login_required
 def dashboard_view(request):
     user = request.user
-    
-    # Debug: Print user role information
-    print(f"DashboardView - User: {user.email}, Role: {user.role}, is_admin: {user.is_admin}")
-    
-    # Redirect admin to admin dashboard
+
     if user.is_admin:
-        print(f"Redirecting admin {user.email} to admin dashboard")
         return redirect('accounts:admin_dashboard')
-    
-    # Redirect patients to their specific dashboard
+
     if user.is_patient:
-        print(f"Redirecting patient {user.email} to patient dashboard")
         return redirect('accounts:patient_dashboard')
-    
-    # Use the generic dashboard for doctors
-    print(f"Showing doctor dashboard for {user.email}")
-    
-    # Get dashboard context for doctors
+
     context = {}
     try:
-        # Get today's appointments for the dashboard
         from datetime import date
+
         today = date.today()
-        today_appointments = Appointment.objects.filter(
-            doctor=user,
-            date_time__date=today
-        ).order_by('date_time')
+        today_appointments = (
+            Appointment.objects.filter(doctor=user, date_time__date=today)
+            .select_related('patient')
+            .order_by('date_time')
+        )
         context['appointments'] = today_appointments
-        
-        # Get recent appointments for sidebar
-        recent_appointments = Appointment.objects.filter(
-            doctor=user
-        ).order_by('-date_time')[:5]
-        context['recent_appointments'] = recent_appointments
-        
-        # Get recent prescriptions
-        recent_prescriptions = Prescription.objects.filter(
-            doctor=user
-        ).order_by('-created_at')[:5]
-        context['recent_prescriptions'] = recent_prescriptions
-        
-        # Get statistics
-        total_appointments = Appointment.objects.filter(doctor=user).count()
-        total_prescriptions = Prescription.objects.filter(doctor=user).count()
-        today_appointments_count = Appointment.objects.filter(
-            doctor=user,
-            date_time__date=today
-        ).count()
-        
-        context['total_appointments'] = total_appointments
-        context['total_prescriptions'] = total_prescriptions
-        context['today_appointments'] = today_appointments_count
-        
-    except Exception as e:
-        print(f"Error getting dashboard data: {e}")
-    
+
+        today_appt_qs = Appointment.objects.filter(doctor=user, date_time__date=today)
+        context['today_appointments_count'] = today_appt_qs.count()
+        context['confirmed_appointments_count'] = today_appt_qs.filter(status='confirmed').count()
+        context['pending_appointments_count'] = today_appt_qs.filter(status='pending').count()
+
+        recent_prescriptions = (
+            Prescription.objects.filter(doctor=user)
+            .select_related('patient')
+            .prefetch_related('medications')
+            .order_by('-created_at')[:8]
+        )
+        context['prescriptions'] = recent_prescriptions
+
+        recent_bill_qs = (
+            Bill.objects.filter(doctor=user)
+            .select_related('patient')
+            .order_by('-created_at')[:8]
+        )
+        bills_with_payments = []
+        for bill in recent_bill_qs:
+            paid = bill.get_paid_amount()
+            remaining = bill.get_remaining_balance()
+            bills_with_payments.append(
+                {
+                    'bill': bill,
+                    'paid_amount': paid,
+                    'remaining_balance': remaining,
+                    'is_fully_paid': remaining <= 0,
+                }
+            )
+        context['bills_with_payments'] = bills_with_payments
+
+        context['total_appointments'] = Appointment.objects.filter(doctor=user).count()
+        context['total_prescriptions'] = Prescription.objects.filter(doctor=user).count()
+
+    except Exception:
+        context.setdefault('appointments', Appointment.objects.none())
+        context.setdefault('prescriptions', Prescription.objects.none())
+        context.setdefault('bills_with_payments', [])
+        context.setdefault('today_appointments_count', 0)
+        context.setdefault('confirmed_appointments_count', 0)
+        context.setdefault('pending_appointments_count', 0)
+
     return render(request, 'accounts/dashboard.html', context)
 
 @login_required
@@ -411,7 +532,8 @@ def patient_dashboard_view(request):
     # Get available doctors
     available_doctors = User.objects.filter(
         role='doctor',
-        is_active=True
+        is_active=True,
+        doctor_profile__is_approved=True
     ).select_related('doctor_profile').order_by('doctor_profile__specialization')[:6]
     
     # Get recent prescriptions
@@ -462,13 +584,33 @@ def admin_dashboard_view(request):
     total_prescriptions = Prescription.objects.count()
 
     # Revenue from billing (fallback to 0 on error)
+    bills_with_payments = []
+    recent_appointments = []
     try:
         from billing.models import Bill
+        from appointments.models import Appointment
+        today = timezone.now().date()
+        
         total_revenue = Bill.objects.filter(status='paid').aggregate(
             total=Sum('total_amount')
         )['total'] or 0
+        
+        # Get today's bills
+        recent_bills = Bill.objects.filter(created_at__date=today).order_by('-created_at')[:5]
+        for bill in recent_bills:
+            remaining = bill.get_remaining_balance()
+            bills_with_payments.append({
+                'bill': bill,
+                'is_fully_paid': remaining <= 0
+            })
+            
+        # Get today's appointments
+        recent_appointments = Appointment.objects.filter(date_time__date=today).order_by('-date_time')[:5]
     except Exception:
         total_revenue = 0
+
+    # Get pending doctors
+    pending_doctors = DoctorProfile.objects.filter(is_approved=False).select_related('user')
 
     context = {
         'total_users': total_users,
@@ -479,6 +621,9 @@ def admin_dashboard_view(request):
         'system_health': 'Healthy',
         'server_uptime': '99.9%',
         'user': request.user,
+        'pending_doctors': pending_doctors,
+        'recent_appointments': recent_appointments,
+        'bills_with_payments': bills_with_payments,
     }
 
     return render(request, 'accounts/admin_dashboard_professional.html', context)
@@ -736,3 +881,48 @@ def delete_user(request, user_id):
             return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@login_required
+def pending_doctors_view(request):
+    """View list of doctors awaiting approval"""
+    if not request.user.is_admin:
+        messages.error(request, 'Access denied!')
+        return redirect('accounts:dashboard')
+    
+    pending_doctors = DoctorProfile.objects.filter(is_approved=False).select_related('user')
+    return render(request, 'accounts/pending_doctors.html', {'pending_doctors': pending_doctors})
+
+@login_required
+def approve_doctor_view(request, doctor_id):
+    """Approve a doctor's registration"""
+    if not request.user.is_admin:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+    doctor_profile.is_approved = True
+    doctor_profile.save()
+    
+    # Optionally notify the doctor here
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Dr. {doctor_profile.user.get_full_name()} approved successfully'
+    })
+
+@login_required
+def reject_doctor_view(request, doctor_id):
+    """Reject and remove a doctor's registration"""
+    if not request.user.is_admin:
+        return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+    user = doctor_profile.user
+    user_name = user.get_full_name()
+    
+    # Delete the user (this will also delete the doctor profile via CASCADE)
+    user.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Registration for Dr. {user_name} rejected and removed'
+    })

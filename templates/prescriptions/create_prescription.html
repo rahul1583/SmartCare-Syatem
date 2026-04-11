@@ -26,27 +26,6 @@
             </div>
         </div>
 
-        {% if messages %}
-            <div class="mb-8 space-y-4">
-                {% for message in messages %}
-                    <div class="p-4 rounded-xl flex items-center {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                        <div class="flex-shrink-0 mr-3">
-                            {% if message.tags == 'success' %}
-                                <i class="fas fa-check-circle text-xl"></i>
-                            {% elif message.tags == 'error' %}
-                                <i class="fas fa-exclamation-circle text-xl"></i>
-                            {% else %}
-                                <i class="fas fa-info-circle text-xl"></i>
-                            {% endif %}
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">{{ message }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
         <!-- Create Prescription Form -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6">
@@ -61,9 +40,9 @@
                 </div>
             </div>
             
-            <div class="p-8">
-                <form method="post">
-                    {% csrf_token %}
+            <form method="post" id="prescriptionForm">
+                {% csrf_token %}
+                <div class="p-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <label for="patient" class="block text-gray-700 text-sm font-bold mb-3 flex items-center">
@@ -130,21 +109,6 @@
                                     <option value="" disabled>No appointments available</option>
                                 {% endif %}
                             </select>
-                            <!-- Debug info -->
-                            <div class="mt-2 text-xs text-gray-500">
-                                Debug: Found {{ appointments|length }} appointments (without prescriptions)
-                                {% if appointments %}
-                                    - Latest: 
-                                    {% if appointments.0.patient_name %}
-                                        {{ appointments.0.patient_name }}
-                                    {% elif appointments.0.patient.get_full_name %}
-                                        {{ appointments.0.patient.get_full_name }}
-                                    {% else %}
-                                        {{ appointments.0.patient.username }}
-                                    {% endif %}
-                                    with Dr. {{ appointments.0.doctor.get_full_name|default:appointments.0.doctor.email }}
-                                {% endif %}
-                            </div>
                         </div>
                         
                         <div class="md:col-span-2">
@@ -160,9 +124,15 @@
                             <label for="medicines" class="block text-gray-700 text-sm font-bold mb-3 flex items-center">
                                 <i class="fas fa-pills mr-2 text-purple-600"></i>Medicines <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea name="medicines" id="medicines" rows="6" required 
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors resize-none"
-                                      placeholder="List prescribed medicines with dosage and frequency...&#10;Example:&#10;1. Paracetamol 500mg - 1 tablet twice daily after meals&#10;2. Amoxicillin 250mg - 1 capsule three times daily&#10;3. Vitamin C 500mg - 1 tablet daily"></textarea>
+                            <textarea name="medicines" id="medicines" rows="10" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm leading-relaxed"
+                                      placeholder="One medicine per line. Example:&#10;Amoxicillin 250mg - 1 capsule - Thrice daily - 7 days&#10;Paracetamol 500mg - 1 tablet - Twice daily - 5 days"></textarea>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Put each drug on its own line. Use this pattern:
+                                <span class="font-medium text-gray-800">name - dosage - frequency - duration</span>,
+                                with parts split by <span class="text-purple-700 font-mono">space - space</span> (e.g. <kbd class="px-1 bg-gray-100 rounded text-xs">Amoxicillin 250mg - 1 cap - Thrice daily - 7 days</kbd>).
+                                A single line with only the medicine name is also accepted.
+                            </p>
                         </div>
                         
                         <div class="md:col-span-2">
@@ -191,56 +161,54 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Medical Guidelines -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+
+            <!-- Medical Guidelines -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8 mt-8 mx-8">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-2">Prescription Guidelines</h3>
+                        <div class="text-blue-800">
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+                                    <span>Ensure all medicines are appropriate for the patient's condition</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+                                    <span>Include clear dosage instructions and frequency</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+                                    <span>Check for potential drug interactions and allergies</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
+                                    <span>Set appropriate follow-up dates for monitoring</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-blue-900 mb-2">Prescription Guidelines</h3>
-                    <div class="text-blue-800">
-                        <ul class="space-y-2">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Ensure all medicines are appropriate for the patient's condition</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Include clear dosage instructions and frequency</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Check for potential drug interactions and allergies</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Set appropriate follow-up dates for monitoring</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="flex justify-center space-x-6">
-            <button type="submit" 
-                    class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-4 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center font-semibold">
-                <i class="fas fa-save mr-3"></i>Create Prescription
-            </button>
-            <a href="{% url 'prescriptions:list' %}" 
-               class="bg-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-700 transition-all duration-300 hover:shadow-lg flex items-center font-semibold">
-                <i class="fas fa-times mr-3"></i>Cancel
-            </a>
-        </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-6 p-8 bg-gray-50 border-t">
+                <button type="submit" 
+                        class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-4 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center font-semibold">
+                    <i class="fas fa-save mr-3"></i>Create Prescription
+                </button>
+                <a href="{% url 'prescriptions:list' %}" 
+                   class="bg-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-700 transition-all duration-300 hover:shadow-lg flex items-center font-semibold">
+                    <i class="fas fa-times mr-3"></i>Cancel
+                </a>
+            </div>
         </form>
+        </div>
     </div>
-</div>
 </div>
 {% endblock %}

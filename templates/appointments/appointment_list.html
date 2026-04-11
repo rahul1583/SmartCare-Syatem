@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
 
-{% block title %}My Appointments - SmartCare System{% endblock %}
+{% block title %}{% if user.is_doctor %}Patient Appointments{% elif user.is_admin %}All Appointments{% else %}My Appointments{% endif %} - SmartCare System{% endblock %}
 
 {% block content %}
 <div class="max-w-6xl mx-auto">
     <div class="bg-white rounded-lg shadow-md p-8">
         <div class="text-center mb-6">
             <i class="fas fa-calendar-alt text-blue-600 text-3xl mb-2"></i>
-            <h2 class="text-2xl font-bold text-gray-800">My Appointments</h2>
-            <p class="text-gray-600">View and manage your appointments</p>
+            <h2 class="text-2xl font-bold text-gray-800">
+                {% if user.is_doctor %}
+                    Patient Appointments
+                {% elif user.is_admin %}
+                    All Appointments
+                {% else %}
+                    My Appointments
+                {% endif %}
+            </h2>
+            <p class="text-gray-600">
+                {% if user.is_doctor %}
+                    View and manage appointments with your patients
+                {% elif user.is_admin %}
+                    View and manage all appointments in the system
+                {% else %}
+                    View and manage your appointments
+                {% endif %}
+            </p>
         </div>
         
         {% if messages %}
@@ -175,11 +191,15 @@
             <div class="text-center py-12">
                 <i class="fas fa-calendar-times text-gray-400 text-5xl mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No appointments found</h3>
-                <p class="text-gray-500 mb-6">You haven't booked any appointments yet.</p>
-                <a href="{% url 'appointments:book_appointment' %}" 
-                   class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Book Your First Appointment
-                </a>
+                {% if user.is_patient %}
+                    <p class="text-gray-500 mb-6">You haven't booked any appointments yet.</p>
+                    <a href="{% url 'appointments:book_appointment' %}" 
+                       class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Book Your First Appointment
+                    </a>
+                {% else %}
+                    <p class="text-gray-500 mb-6">No appointments have been scheduled with you yet.</p>
+                {% endif %}
             </div>
         {% endif %}
     </div>

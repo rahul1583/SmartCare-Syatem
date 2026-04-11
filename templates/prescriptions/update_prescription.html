@@ -90,7 +90,7 @@
                         {% for medication in medications %}
                             <div class="mb-2 pb-2 border-b border-gray-200 last:border-b-0">
                                 <p class="text-gray-800">{{ medication.medicine_name }}</p>
-                                <p class="text-sm text-gray-600">{{ medication.dosage }} - {{ medication.frequency }} - {{ medication.duration }}</p>
+                                <p class="text-sm text-gray-600">{{ medication.dosage }} · {{ medication.get_frequency_display }} · {{ medication.duration }}</p>
                             </div>
                         {% endfor %}
                     </div>
@@ -108,24 +108,32 @@
             </div>
         </div>
 
-        <!-- Update Form -->
+        <!-- Update Prescription Form -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
             <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 px-8 py-6">
                 <div class="flex items-center text-white">
                     <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-file-medical text-xl"></i>
+                        <i class="fas fa-edit text-xl"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl font-bold">Update Prescription Information</h2>
-                        <p class="text-emerald-100">Modify the prescription details below</p>
+                        <h2 class="text-2xl font-bold">Edit Prescription</h2>
+                        <p class="text-emerald-100">Modify the prescription details for {{ prescription.patient.get_full_name|default:prescription.patient.email }}</p>
                     </div>
                 </div>
             </div>
             
-            <div class="p-8">
-                <form method="post">
-                    {% csrf_token %}
+            <form method="post" id="updatePrescriptionForm">
+                {% csrf_token %}
+                <div class="p-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-3 flex items-center">
+                                <i class="fas fa-user mr-2 text-emerald-600"></i>Patient
+                            </label>
+                            <div class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 font-medium">
+                                {{ prescription.patient.get_full_name|default:prescription.patient.email }}
+                            </div>
+                        </div>
                         <div class="md:col-span-2">
                             <label class="block text-gray-700 text-sm font-bold mb-3 flex items-center">
                                 <i class="fas fa-user-md mr-2 text-emerald-600"></i>Consultation Type <span class="text-red-500 ml-1">*</span>
@@ -160,10 +168,15 @@
                             <label for="medicines" class="block text-gray-700 text-sm font-bold mb-3 flex items-center">
                                 <i class="fas fa-pills mr-2 text-emerald-600"></i>Medicines <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea name="medicines" id="medicines" rows="6" required 
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors resize-none"
-                                      placeholder="List prescribed medicines with dosage and frequency...">{% for medication in medications %}{{ medication.medicine_name }} - {{ medication.dosage }} - {{ medication.frequency }} - {{ medication.duration }}
-{% endfor %}</textarea>
+                            <textarea name="medicines" id="medicines" rows="10" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm leading-relaxed"
+                                      placeholder="One medicine per line. Example:&#10;Amoxicillin 250mg - 1 capsule - Thrice daily - 7 days">{{ medicines_initial|default:'' }}</textarea>
+                            <p class="mt-2 text-sm text-gray-600">
+                                One line per medicine. Format:
+                                <span class="font-medium text-gray-800">name - dosage - frequency - duration</span>
+                                with parts separated by <span class="text-emerald-700 font-mono">space - space</span>.
+                                You may use only the medicine name on a line if needed.
+                            </p>
                         </div>
                         
                         <div class="md:col-span-2">
@@ -193,55 +206,54 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Update Guidelines -->
-        <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 mb-8">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+
+                <!-- Update Guidelines -->
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 mb-8 mt-8 mx-8">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-amber-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-amber-900 mb-2">Update Guidelines</h3>
+                            <div class="text-amber-800">
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
+                                        <span>Review all changes carefully before saving</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
+                                        <span>Ensure medicine dosages are appropriate and safe</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
+                                        <span>Update follow-up dates if treatment plan changes</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
+                                        <span>Patient will be notified of prescription changes</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-amber-900 mb-2">Update Guidelines</h3>
-                    <div class="text-amber-800">
-                        <ul class="space-y-2">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Review all changes carefully before saving</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Ensure medicine dosages are appropriate and safe</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Update follow-up dates if treatment plan changes</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-amber-600 mr-2 mt-1 flex-shrink-0"></i>
-                                <span>Patient will be notified of prescription changes</span>
-                            </li>
-                        </ul>
-                    </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-center space-x-6 p-8 bg-gray-50 border-t">
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center font-semibold">
+                        <i class="fas fa-save mr-3"></i>Update Prescription
+                    </button>
+                    <a href="{% url 'prescriptions:detail' prescription.id %}" 
+                       class="bg-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-700 transition-all duration-300 hover:shadow-lg flex items-center font-semibold">
+                        <i class="fas fa-times mr-3"></i>Cancel
+                    </a>
                 </div>
-            </div>
+            </form>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="flex justify-center space-x-6">
-            <button type="submit" 
-                    class="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center font-semibold">
-                <i class="fas fa-save mr-3"></i>Update Prescription
-            </button>
-            <a href="{% url 'prescriptions:detail' prescription.id %}" 
-               class="bg-gray-600 text-white px-8 py-4 rounded-xl hover:bg-gray-700 transition-all duration-300 hover:shadow-lg flex items-center font-semibold">
-                <i class="fas fa-times mr-3"></i>Cancel
-            </a>
-        </div>
-        </form>
     </div>
 </div>
 {% endblock %}

@@ -355,6 +355,34 @@
                 background: transparent !important;
             }
         }
+        .no-print {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .btn-print {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .prescription-container {
+                box-shadow: none;
+                border: 2px solid #2c3e50;
+            }
+        }
     </style>
 </head>
 <body>
@@ -481,5 +509,12 @@
             <p>SmartCare Healthcare System | {{ prescription.created_at|date:"Y" }} | All rights reserved</p>
         </div>
     </div>
+
+    {% if is_print %}
+    <div class="no-print">
+        <button onclick="window.print()" class="btn-print">Print Prescription</button>
+        <button onclick="window.close()" class="btn-print" style="background: #7f8c8d;">Close Window</button>
+    </div>
+    {% endif %}
 </body>
 </html>

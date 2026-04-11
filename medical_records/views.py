@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
@@ -193,9 +193,24 @@ def update_medical_record_view(request, record_id):
 
 @login_required
 def lab_report_list_view(request):
-    lab_reports = LabReport.objects.select_related('patient', 'doctor').order_by('-ordered_date')
-    
-    # Calculate statistics
+    user = request.user
+    if user.is_admin:
+        lab_reports = LabReport.objects.select_related('patient', 'doctor').order_by('-ordered_date')
+    elif user.is_doctor:
+        lab_reports = (
+            LabReport.objects.filter(doctor=user)
+            .select_related('patient', 'doctor')
+            .order_by('-ordered_date')
+        )
+    else:
+        # Patients only see their own lab reports
+        lab_reports = (
+            LabReport.objects.filter(patient=user)
+            .select_related('patient', 'doctor')
+            .order_by('-ordered_date')
+        )
+
+    # Calculate statistics (on the scoped queryset)
     total_reports = lab_reports.count()
     completed_reports = lab_reports.filter(status='completed').count()
     in_progress_reports = lab_reports.filter(status='in_progress').count()
@@ -213,26 +228,16 @@ def lab_report_list_view(request):
 
 @login_required
 def lab_report_detail_view(request, report_id):
-    try:
-        lab_report = LabReport.objects.get(id=report_id)
-        
-        # Check permissions
-        if request.user.is_admin:
-            pass  # Admin can see all reports
-        elif request.user.is_doctor:
-            if lab_report.doctor != request.user:
-                messages.error(request, 'Access denied! You can only view your own lab reports.')
-                return redirect('medical_records:lab_report_list')
-        else:
-            if lab_report.patient != request.user:
-                messages.error(request, 'Access denied! You can only view your own lab reports.')
-                return redirect('medical_records:lab_report_list')
-        
-        return render(request, 'medical_records/lab_report_detail.html', {'lab_report': lab_report})
-        
-    except LabReport.DoesNotExist:
-        messages.error(request, 'Lab report not found!')
-        return redirect('medical_records:lab_report_list')
+    user = request.user
+    base = LabReport.objects.select_related('patient', 'doctor', 'patient__patient_profile', 'doctor__doctor_profile')
+    if user.is_admin:
+        lab_report = get_object_or_404(base, id=report_id)
+    elif user.is_doctor:
+        lab_report = get_object_or_404(base, id=report_id, doctor=user)
+    else:
+        lab_report = get_object_or_404(base, id=report_id, patient=user)
+
+    return render(request, 'medical_records/lab_report_detail.html', {'lab_report': lab_report})
 
 @login_required
 def create_lab_report_view(request):
@@ -289,74 +294,54 @@ def create_lab_report_view(request):
 
 @login_required
 def edit_lab_report_view(request, report_id):
-    try:
-        lab_report = LabReport.objects.get(id=report_id)
-        
-        # Check permissions
-        if request.user.is_admin:
-            pass  # Admin can edit all reports
-        elif request.user.is_doctor:
-            if lab_report.doctor != request.user:
-                messages.error(request, 'Access denied! You can only edit your own lab reports.')
-                return redirect('medical_records:lab_report_list')
-        else:
-            messages.error(request, 'Access denied! Only doctors and admins can edit lab reports.')
-            return redirect('medical_records:lab_report_list')
-        
-        if request.method == 'POST':
-            try:
-                # Update lab report with new data
-                lab_report.report_type = request.POST.get('report_type')
-                lab_report.title = request.POST.get('title')
-                lab_report.description = request.POST.get('description', '')
-                lab_report.results = request.POST.get('results', '')
-                lab_report.status = request.POST.get('status', 'pending')
-                
-                # Update file if new one provided
-                new_file = request.FILES.get('report_file')
-                if new_file:
-                    lab_report.report_file = new_file
-                
-                lab_report.save()
-                messages.success(request, f'Lab report "{lab_report.title}" updated successfully!')
-                return redirect('medical_records:lab_report_detail', report_id=lab_report.id)
-                
-            except Exception as e:
-                messages.error(request, f'Error updating lab report: {str(e)}')
-        
-        # Context for edit form
-        context = {
-            'lab_report': lab_report,
-            'is_edit': True
-        }
-        return render(request, 'medical_records/edit_lab_report.html', context)
-        
-    except LabReport.DoesNotExist:
-        messages.error(request, 'Lab report not found!')
+    user = request.user
+    base = LabReport.objects.select_related('patient', 'doctor')
+    if user.is_admin:
+        lab_report = get_object_or_404(base, id=report_id)
+    elif user.is_doctor:
+        lab_report = get_object_or_404(base, id=report_id, doctor=user)
+    else:
+        messages.error(request, 'Access denied! Only doctors and admins can edit lab reports.')
         return redirect('medical_records:lab_report_list')
+
+    if request.method == 'POST':
+        try:
+            lab_report.report_type = request.POST.get('report_type')
+            lab_report.title = request.POST.get('title')
+            lab_report.description = request.POST.get('description', '')
+            lab_report.results = request.POST.get('results', '')
+            lab_report.status = request.POST.get('status', 'pending')
+
+            new_file = request.FILES.get('report_file')
+            if new_file:
+                lab_report.report_file = new_file
+
+            lab_report.save()
+            messages.success(request, f'Lab report "{lab_report.title}" updated successfully!')
+            return redirect('medical_records:lab_report_detail', report_id=lab_report.id)
+
+        except Exception as e:
+            messages.error(request, f'Error updating lab report: {str(e)}')
+
+    context = {
+        'lab_report': lab_report,
+        'is_edit': True,
+    }
+    return render(request, 'medical_records/edit_lab_report.html', context)
 
 @login_required
 def upload_lab_report_view(request, report_id):
-    try:
-        lab_report = LabReport.objects.get(id=report_id)
-        
-        # Check permissions
-        if request.user.is_admin:
-            pass  # Admin can upload to all reports
-        elif request.user.is_doctor:
-            if lab_report.doctor != request.user:
-                messages.error(request, 'Access denied! You can only upload to your own lab reports.')
-                return redirect('medical_records:lab_report_list')
-        else:
-            messages.error(request, 'Access denied! Only doctors and admins can upload lab reports.')
-            return redirect('medical_records:lab_report_list')
-        
-        # Implementation would go here
-        return render(request, 'medical_records/upload_lab_report.html', {'lab_report': lab_report})
-        
-    except LabReport.DoesNotExist:
-        messages.error(request, 'Lab report not found!')
+    user = request.user
+    base = LabReport.objects.select_related('patient', 'doctor')
+    if user.is_admin:
+        lab_report = get_object_or_404(base, id=report_id)
+    elif user.is_doctor:
+        lab_report = get_object_or_404(base, id=report_id, doctor=user)
+    else:
+        messages.error(request, 'Access denied! Only doctors and admins can upload lab reports.')
         return redirect('medical_records:lab_report_list')
+
+    return render(request, 'medical_records/upload_lab_report.html', {'lab_report': lab_report})
 
 @login_required
 def vital_signs_list_view(request):

@@ -78,20 +78,24 @@ def mark_all_notifications_read(request):
 
 @login_required
 def delete_notification(request, notification_id):
-    """Delete notification (AJAX)"""
-    if request.method == 'POST':
-        try:
-            notification = Notification.objects.get(id=notification_id, recipient=request.user)
-            notification.delete()
-            
+    """Delete notification (Supports both AJAX POST and standard GET for simple links)"""
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=request.user)
+        notification.delete()
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.method == 'POST':
             return JsonResponse({
                 'success': True,
                 'unread_count': Notification.objects.filter(recipient=request.user, is_read=False).count()
             })
-        except Notification.DoesNotExist:
+        
+        # If standard link click (GET), redirect back to list
+        return redirect('notifications:list')
+        
+    except Notification.DoesNotExist:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.method == 'POST':
             return JsonResponse({'success': False, 'error': 'Notification not found'})
-    
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+        return redirect('notifications:list')
 
 
 @login_required

@@ -28,8 +28,8 @@ class AppointmentBookingForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
-        # Filter doctors only
-        self.fields['doctor'].queryset = User.objects.filter(role='doctor', is_active=True)
+        # Filter doctors only (approved ones)
+        self.fields['doctor'].queryset = User.objects.filter(role='doctor', is_active=True, doctor_profile__is_approved=True)
         
         # If user is a doctor, pre-select them and make the field readonly
         if user and user.is_doctor:

@@ -104,23 +104,26 @@ WSGI_APPLICATION = 'SmartCareSystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'smartcare_db_qd07',
-        'USER': 'admin',
-        'PASSWORD': 'eLkqUhNkVO24vmlbIcqgtI4qH1MHYuCM',
-        'HOST': 'dpg-d7bjtevkijhs73aoend0-a',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# If running on Render, use the internal PostgreSQL database
+# Note: Host 'dpg-d7bjtevkijhs73aoend0-a' is internal to Render and only works there.
+if os.environ.get('RENDER'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'smartcare_db_qd07',
+            'USER': 'admin',
+            'PASSWORD': 'eLkqUhNkVO24vmlbIcqgtI4qH1MHYuCM',
+            'HOST': 'dpg-d7bjtevkijhs73aoend0-a',
+            'PORT': '5432',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -239,3 +242,30 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:60017",
     "http://localhost:60017",
 ]
+
+# Email settings for password reset and notifications
+# Default: console backend (no real delivery). Set EMAIL_BACKEND + credentials in .env for SMTP.
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = (os.getenv('EMAIL_HOST', 'smtp.gmail.com') or 'smtp.gmail.com').strip()
+# Port 465 uses implicit SSL; 587 uses STARTTLS (Gmail supports both)
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+_default_port = '465' if EMAIL_USE_SSL else '587'
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', _default_port))
+if EMAIL_USE_SSL:
+    EMAIL_USE_TLS = False
+else:
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = (os.getenv('EMAIL_HOST_USER', '') or '').strip()
+# Gmail App Passwords are 16 characters; Google often displays them with spaces—remove them
+_raw_pw = (os.getenv('EMAIL_HOST_PASSWORD', '') or '').strip()
+EMAIL_HOST_PASSWORD = _raw_pw.replace(' ', '')
+# If DEFAULT_FROM_EMAIL is unset, prefer the SMTP user so Gmail accepts the From address
+_default_from = (os.getenv('DEFAULT_FROM_EMAIL', '') or '').strip()
+DEFAULT_FROM_EMAIL = _default_from or EMAIL_HOST_USER or 'noreply@localhost'
+
+# Optional: Resend (https://resend.com) — avoids Gmail SMTP/App Password issues. Set RESEND_API_KEY in .env.
+RESEND_API_KEY = (os.getenv('RESEND_API_KEY', '') or '').strip()
+RESEND_FROM_EMAIL = (os.getenv('RESEND_FROM_EMAIL', '') or '').strip() or 'onboarding@resend.dev'
+
+# When DEBUG is True and sending fails, show OTP on the next page (local dev only; never in production).
+EMAIL_DEV_OTP_FALLBACK = os.getenv('EMAIL_DEV_OTP_FALLBACK', 'true').lower() in ('true', '1', 'yes')
