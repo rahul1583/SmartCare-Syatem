@@ -12,7 +12,7 @@
                     <h1 class="text-3xl font-bold text-white mb-2">Vital Signs</h1>
                     <p class="text-red-100">Manage patient vital signs measurements</p>
                 </div>
-                {% if user.is_doctor or user.is_admin %}
+                {% if user.is_doctor %}
                 <a href="{% url 'medical_records:add_vital_signs' %}" 
                    class="bg-white text-red-600 px-6 py-3 rounded-lg font-medium hover:bg-red-50 transition-colors flex items-center">
                     <i class="fas fa-plus mr-2"></i>Add Vital Signs

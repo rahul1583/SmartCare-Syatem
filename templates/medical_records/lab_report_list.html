@@ -14,7 +14,7 @@
                         {% if user.is_patient %}Your laboratory reports (only you can see these){% else %}Manage patient laboratory test results and reports{% endif %}
                     </p>
                 </div>
-                {% if user.is_doctor or user.is_admin %}
+                {% if user.is_doctor %}
                 <a href="{% url 'medical_records:create_lab_report' %}" 
                    class="bg-white text-purple-600 px-6 py-3 rounded-lg font-medium hover:bg-purple-50 transition-colors flex items-center">
                     <i class="fas fa-plus mr-2"></i>New Lab Report

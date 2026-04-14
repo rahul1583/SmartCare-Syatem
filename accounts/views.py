@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import TemplateView, ListView, UpdateView
@@ -21,6 +21,7 @@ import string
 import os
 from .models import User, PatientProfile, DoctorProfile, PasswordResetOTP
 from .email_helpers import delivery_error_user_message, send_password_reset_otp_email
+from notifications.models import Notification
 
 logger = logging.getLogger(__name__)
 
@@ -597,14 +598,30 @@ def _get_admin_dashboard_context():
     recent_appointments = []
     appointments_today_count = 0
     paid_transactions_today_count = 0
+    monthly_appointments_count = 0
+    monthly_revenue = 0
+    
     try:
         from billing.models import Bill
         from appointments.models import Appointment
+        from django.db.models.functions import TruncMonth
+        
         today = timezone.now().date()
+        first_day_of_month = today.replace(day=1)
         
         total_revenue = Bill.objects.filter(status='paid').aggregate(
             total=Sum('total_amount')
         )['total'] or 0
+        
+        # Monthly stats
+        monthly_revenue = Bill.objects.filter(
+            created_at__date__gte=first_day_of_month,
+            status='paid'
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
+        
+        monthly_appointments_count = Appointment.objects.filter(
+            date_time__date__gte=first_day_of_month
+        ).count()
         
         # Get today's bills
         recent_bills = Bill.objects.filter(created_at__date=today).order_by('-created_at')[:5]
@@ -623,8 +640,26 @@ def _get_admin_dashboard_context():
             date_time__date=today
         ).order_by('-date_time')[:5]
         appointments_today_count = Appointment.objects.filter(date_time__date=today).count()
+        
+        # Yearly trend data (last 6 months)
+        six_months_ago = today - timedelta(days=180)
+        revenue_trend = Bill.objects.filter(
+            created_at__date__gte=six_months_ago,
+            status='paid'
+        ).annotate(month=TruncMonth('created_at')).values('month').annotate(
+            total=Sum('total_amount')
+        ).order_by('month')
+        
+        appointment_trend = Appointment.objects.filter(
+            date_time__date__gte=six_months_ago
+        ).annotate(month=TruncMonth('date_time')).values('month').annotate(
+            total=Count('id')
+        ).order_by('month')
+        
     except Exception:
         total_revenue = 0
+        revenue_trend = []
+        appointment_trend = []
 
     # Get pending doctors
     pending_doctors = DoctorProfile.objects.filter(is_approved=False).select_related('user')
@@ -635,6 +670,8 @@ def _get_admin_dashboard_context():
         'total_patients': total_patients,
         'total_prescriptions': total_prescriptions,
         'total_revenue': total_revenue,
+        'monthly_revenue': monthly_revenue,
+        'monthly_appointments_count': monthly_appointments_count,
         'system_health': 'Healthy',
         'server_uptime': '99.9%',
         'pending_doctors': pending_doctors,
@@ -643,6 +680,8 @@ def _get_admin_dashboard_context():
         'appointments_today_count': appointments_today_count,
         'paid_transactions_today_count': paid_transactions_today_count,
         'pending_doctors_count': pending_doctors.count(),
+        'revenue_trend': list(revenue_trend) if hasattr(revenue_trend, '__iter__') else [],
+        'appointment_trend': list(appointment_trend) if hasattr(appointment_trend, '__iter__') else [],
     }
 
     return context
@@ -942,9 +981,9 @@ def delete_user(request, user_id):
             })
             
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+            return JsonResponse({'error': str(e)}, status=400)
+            
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 @login_required
 def pending_doctors_view(request):
@@ -990,3 +1029,23 @@ def reject_doctor_view(request, doctor_id):
         'success': True,
         'message': f'Registration for Dr. {user_name} rejected and removed'
     })
+
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    """Professional password change view with notification"""
+    template_name = 'accounts/password_change.html'
+    success_url = reverse_lazy('accounts:password_change_done')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Create notification for the user
+        Notification.create_notification(
+            recipient=self.request.user,
+            notification_type='password_changed',
+            title='Password Changed Successfully',
+            message='Your account password has been updated successfully. If you did not perform this action, please contact support immediately.',
+            priority='high'
+        )
+        
+        messages.success(self.request, 'Your password has been updated successfully!')
+        return response

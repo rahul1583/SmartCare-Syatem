@@ -210,444 +210,234 @@
                 <div class="h-px flex-1 bg-slate-200 ml-6"></div>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- User Control -->
-                <a href="{% url 'accounts:admin_users' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-                    <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
-                        <i class="fas fa-users-cog text-2xl"></i>
+                <a href="{% url 'accounts:admin_users' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-users-cog text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">User Control</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">System Roles & Access</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">User Control</h4>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Roles & Access</p>
                 </a>
 
                 <!-- Schedule -->
-                <a href="{% url 'appointments:appointment_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-                    <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
-                        <i class="fas fa-calendar-alt text-2xl"></i>
+                <a href="{% url 'appointments:appointment_list' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-calendar-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-emerald-600 transition-colors">Appointments</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Bookings & Scheduling</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors">Appointments</h4>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Bookings Tracker</p>
                 </a>
 
                 <!-- Pharmacy -->
-                <a href="{% url 'prescriptions:list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-                    <div class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center mb-6 group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
-                        <i class="fas fa-prescription text-2xl"></i>
+                <a href="{% url 'prescriptions:list' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-violet-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-violet-600 text-white flex items-center justify-center shadow-lg shadow-violet-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-prescription text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-violet-600 transition-colors">Prescriptions</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Medication Management</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-violet-600 transition-colors">Prescriptions</h4>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Medication Logs</p>
                 </a>
 
                 <!-- Financials -->
-                <a href="{% url 'billing:bill_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-                    <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
-                        <i class="fas fa-file-invoice-dollar text-2xl"></i>
+                <a href="{% url 'billing:bill_list' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-600 text-white flex items-center justify-center shadow-lg shadow-amber-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-file-invoice-dollar text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-amber-600 transition-colors">Financials</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Invoices & Billing</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-amber-600 transition-colors">Financials</h4>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Invoices & Tax</p>
                 </a>
 
                 <!-- Archives -->
-                <a href="{% url 'medical_records:medical_record_list' %}" class="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-                    <div class="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-6 group-hover:bg-rose-600 group-hover:text-white transition-all duration-500 group-hover:scale-110">
-                        <i class="fas fa-folder-open text-2xl"></i>
+                <a href="{% url 'medical_records:medical_record_list' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-rose-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-lg shadow-rose-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-folder-open text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-rose-600 transition-colors">Medical Vault</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Centralized Records</p>
+                        </div>
                     </div>
-                    <h4 class="text-lg font-black text-slate-900 mb-1 group-hover:text-rose-600 transition-colors">Medical Vault</h4>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider leading-relaxed">Central Records</p>
+                </a>
+
+                <!-- Security Settings -->
+                <a href="{% url 'accounts:password_change' %}" class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-800 text-white flex items-center justify-center shadow-lg shadow-slate-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-slate-800 transition-colors">Security</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Account Protection</p>
+                        </div>
+                    </div>
                 </a>
             </div>
         </div>
 
-        <!-- Live Monitoring Section -->
-        <div class="mb-10 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
-                    <i class="fas fa-wave-square text-emerald-600"></i>
-                    Live System Monitoring
-                </h3>
-                <span id="monitoring-last-updated" class="text-xs font-bold uppercase tracking-widest text-slate-500">Updated just now</span>
-            </div>
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="rounded-2xl bg-emerald-50 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">Appointments Today</div>
-                        <div id="appointments-today-count" class="text-2xl font-black text-emerald-900">{{ appointments_today_count }}</div>
-                    </div>
-                    <div class="rounded-2xl bg-amber-50 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-amber-700 font-bold">Paid Transactions</div>
-                        <div id="paid-transactions-count" class="text-2xl font-black text-amber-900">{{ paid_transactions_today_count }}</div>
-                    </div>
-                    <div class="rounded-2xl bg-indigo-50 px-4 py-3">
-                        <div class="text-[10px] uppercase tracking-wider text-indigo-700 font-bold">Pending Approvals</div>
-                        <div id="monitor-pending-doctors-count" class="text-2xl font-black text-indigo-900">{{ pending_doctors_count }}</div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div class="rounded-2xl border border-slate-200 p-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-indigo-700 mb-3">Appointments Trend</h4>
-                        <div class="h-48">
-                            <canvas id="appointmentsGraph"></canvas>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 p-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-3">Transactions Trend</h4>
-                        <div class="h-48">
-                            <canvas id="transactionsGraph"></canvas>
-                        </div>
-                    </div>
-                    <div class="rounded-2xl border border-slate-200 p-4">
-                        <h4 class="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-3">Pending Approvals Trend</h4>
-                        <div class="h-48">
-                            <canvas id="pendingApprovalsGraph"></canvas>
-                        </div>
+        <!-- Monthly Performance & Trends -->
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-black text-slate-900 flex items-center gap-3">
+                    <i class="fas fa-chart-line text-indigo-600"></i>
+                    Monthly Performance
+                </h2>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-2xl border border-indigo-100">
+                        <span class="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-black text-indigo-700 uppercase tracking-widest">{{ today|date:"F Y" }}</span>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Bottom Live Operations Section -->
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
-                <i class="fas fa-bolt text-indigo-600"></i>
-                Live Operations Panel
-            </h3>
-            <div class="flex items-center gap-2">
-                <button id="manual-refresh-btn" class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
-                    Refresh Now
-                </button>
-                <button id="auto-refresh-toggle" class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700">
-                    Auto Refresh: On
-                </button>
-            </div>
-        </div>
-        <p class="text-xs text-slate-500 font-semibold mb-8">
-            This bottom section updates in real time to help you watch appointments, transactions, and act quickly.
-        </p>
-
-        <!-- Today's Activities Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <!-- Today's Appointments -->
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
-                        <i class="fas fa-calendar-day text-indigo-500"></i>
-                        Today's Appointments
-                        <span id="appointments-title-count" class="text-xs px-2 py-1 rounded bg-indigo-100 text-indigo-700">{{ appointments_today_count }}</span>
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <span id="appointments-updated-at" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">just updated</span>
-                        <a href="{% url 'appointments:appointment_list' %}" class="text-xs font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest px-3 py-1.5 bg-indigo-50 rounded-lg transition-colors">See All</a>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Monthly Appointments Card -->
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <i class="fas fa-calendar-check text-8xl text-indigo-600"></i>
                     </div>
-                </div>
-                <div class="p-8">
-                        <div id="appointments-list" class="space-y-5 {% if not recent_appointments %}hidden{% endif %}">
-                            {% for appt in recent_appointments|slice:":4" %}
-                            <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
-                                        {{ appt.patient.username|slice:":1"|upper }}
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{{ appt.patient.get_full_name|default:appt.patient.username }}</div>
-                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dr. {{ appt.doctor.get_full_name|default:appt.doctor.username }}</div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs font-black text-slate-900">{{ appt.date_time|time:"g:i A" }}</div>
-                                    <div class="mt-1">
-                                        <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter
-                                            {% if appt.status == 'confirmed' %}bg-emerald-100 text-emerald-700
-                                            {% elif appt.status == 'pending' %}bg-amber-100 text-amber-700
-                                            {% else %}bg-slate-100 text-slate-600{% endif %}">
-                                            {{ appt.status }}
-                                        </span>
-                                    </div>
-                                </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-xl"></i>
                             </div>
-                            {% endfor %}
+                            <div>
+                                <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest">Appointments</h3>
+                                <p class="text-xs font-bold text-slate-500">Total this month</p>
+                            </div>
                         </div>
-                        <div id="appointments-empty" class="text-center py-10 {% if recent_appointments %}hidden{% endif %}">
-                            <i class="fas fa-inbox text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-400 font-bold text-sm">No appointments scheduled for today</p>
+                        <div class="flex items-end gap-3 mb-8">
+                            <span class="text-5xl font-black text-slate-900 leading-none">{{ monthly_appointments_count }}</span>
+                            <span class="text-sm font-bold text-emerald-500 mb-1 flex items-center gap-1">
+                                <i class="fas fa-caret-up"></i>
+                                Trending
+                            </span>
                         </div>
-                </div>
-            </div>
-
-            <!-- Today's Billing -->
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-lg font-black text-slate-900 flex items-center gap-3">
-                        <i class="fas fa-file-invoice-dollar text-amber-500"></i>
-                        Today's Transactions
-                        <span id="transactions-title-count" class="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700">{{ paid_transactions_today_count }}</span>
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <span id="transactions-updated-at" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">just updated</span>
-                        <a href="{% url 'billing:bill_list' %}" class="text-xs font-black text-amber-600 hover:text-amber-800 uppercase tracking-widest px-3 py-1.5 bg-amber-50 rounded-lg transition-colors">See All</a>
+                        <div class="h-48">
+                            <canvas id="monthlyAppointmentsTrend"></canvas>
+                        </div>
                     </div>
                 </div>
-                <div class="p-8">
-                        <div id="transactions-list" class="space-y-5 {% if not bills_with_payments %}hidden{% endif %}">
-                            {% for bill_data in bills_with_payments|slice:":4" %}
-                            <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
-                                        <i class="fas fa-file-invoice text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors">Bill #{{ bill_data.bill.id }}</div>
-                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ bill_data.bill.patient.get_full_name|default:bill_data.bill.patient.username }}</div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-sm font-black text-slate-900">Rs. {{ bill_data.bill.total_amount }}</div>
-                                    <div class="mt-1">
-                                        <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter
-                                            {% if bill_data.is_fully_paid %}bg-emerald-100 text-emerald-700
-                                            {% else %}bg-rose-100 text-rose-700{% endif %}">
-                                            {% if bill_data.is_fully_paid %}Paid{% else %}Pending{% endif %}
-                                        </span>
-                                    </div>
-                                </div>
+
+                <!-- Monthly Revenue Card -->
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <i class="fas fa-wallet text-8xl text-emerald-600"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-xl"></i>
                             </div>
-                            {% endfor %}
+                            <div>
+                                <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest">Revenue</h3>
+                                <p class="text-xs font-bold text-slate-500">Earnings this month</p>
+                            </div>
                         </div>
-                        <div id="transactions-empty" class="text-center py-10 {% if bills_with_payments %}hidden{% endif %}">
-                            <i class="fas fa-receipt text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-400 font-bold text-sm">No transactions today</p>
+                        <div class="flex items-end gap-3 mb-8">
+                            <span class="text-5xl font-black text-slate-900 leading-none">Rs. {{ monthly_revenue|floatformat:0 }}</span>
+                            <span class="text-sm font-bold text-emerald-500 mb-1 flex items-center gap-1">
+                                <i class="fas fa-caret-up"></i>
+                                Growth
+                            </span>
                         </div>
+                        <div class="h-48">
+                            <canvas id="monthlyRevenueTrend"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const liveDataUrl = "{% url 'accounts:admin_dashboard_live_data' %}";
-const monitoringLabels = [];
-const appointmentsSeries = [];
-const transactionsSeries = [];
-const pendingApprovalsSeries = [];
-const maxPoints = 12;
-let appointmentsChart = null;
-let transactionsChart = null;
-let pendingApprovalsChart = null;
-let autoRefreshEnabled = true;
-let refreshTimer = null;
-
-function keepLastPoints(arr, value) {
-    arr.push(value);
-    if (arr.length > maxPoints) {
-        arr.shift();
-    }
-}
-
-function updateCountText(id, value, prefix = '') {
-    const node = document.getElementById(id);
-    if (node) {
-        node.textContent = `${prefix}${value}`;
-    }
-}
-
-function pulseElement(id) {
-    const node = document.getElementById(id);
-    if (!node) return;
-    node.classList.add('scale-105', 'transition-transform', 'duration-200');
-    setTimeout(() => node.classList.remove('scale-105'), 220);
-}
-
-function renderAppointments(items) {
-    const host = document.getElementById('appointments-list');
-    const empty = document.getElementById('appointments-empty');
-    if (!host) return;
-    if (!items.length) {
-        host.innerHTML = '';
-        host.classList.add('hidden');
-        if (empty) empty.classList.remove('hidden');
-        return;
-    }
-    host.classList.remove('hidden');
-    if (empty) empty.classList.add('hidden');
-    host.innerHTML = items.map((item) => `
-        <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-black shadow-lg shadow-indigo-200">
-                    ${item.patient_initial}
-                </div>
-                <div>
-                    <div class="text-sm font-black text-slate-900">${item.patient_name}</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Dr. ${item.doctor_name}</div>
-                </div>
-            </div>
-            <div class="text-right">
-                <div class="text-xs font-black text-slate-900">${item.time}</div>
-                <div class="mt-1">
-                    <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter ${item.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : item.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">${item.status}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function renderTransactions(items) {
-    const host = document.getElementById('transactions-list');
-    const empty = document.getElementById('transactions-empty');
-    if (!host) return;
-    if (!items.length) {
-        host.innerHTML = '';
-        host.classList.add('hidden');
-        if (empty) empty.classList.remove('hidden');
-        return;
-    }
-    host.classList.remove('hidden');
-    if (empty) empty.classList.add('hidden');
-    host.innerHTML = items.map((item) => `
-        <div class="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm">
-                    <i class="fas fa-file-invoice text-lg"></i>
-                </div>
-                <div>
-                    <div class="text-sm font-black text-slate-900">Bill #${item.id}</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${item.patient_name}</div>
-                </div>
-            </div>
-            <div class="text-right">
-                <div class="text-sm font-black text-slate-900">Rs. ${item.total_amount}</div>
-                <div class="mt-1">
-                    <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-tighter ${item.is_fully_paid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${item.is_fully_paid ? 'Paid' : 'Pending'}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function updateMonitoringGraph(label, stats) {
-    keepLastPoints(monitoringLabels, label);
-    keepLastPoints(appointmentsSeries, stats.appointments_today_count || 0);
-    keepLastPoints(transactionsSeries, stats.paid_transactions_today_count || 0);
-    keepLastPoints(pendingApprovalsSeries, stats.pending_doctors_count || 0);
-
-    if (!appointmentsChart) {
-        const appointmentsCtx = document.getElementById('appointmentsGraph');
-        const transactionsCtx = document.getElementById('transactionsGraph');
-        const pendingCtx = document.getElementById('pendingApprovalsGraph');
-        if (!appointmentsCtx || !transactionsCtx || !pendingCtx) return;
-
-        appointmentsChart = new Chart(appointmentsCtx, {
-            type: 'line',
-            data: {
-                labels: monitoringLabels,
-                datasets: [{ label: 'Appointments', data: appointmentsSeries, borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.14)', fill: true, tension: 0.35 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-            }
-        });
-
-        transactionsChart = new Chart(transactionsCtx, {
-            type: 'line',
-            data: {
-                labels: monitoringLabels,
-                datasets: [{ label: 'Paid Transactions', data: transactionsSeries, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.14)', fill: true, tension: 0.35 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-            }
-        });
-
-        pendingApprovalsChart = new Chart(pendingCtx, {
-            type: 'line',
-            data: {
-                labels: monitoringLabels,
-                datasets: [{ label: 'Pending Approvals', data: pendingApprovalsSeries, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.14)', fill: true, tension: 0.35 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-            }
-        });
-        return;
-    }
-
-    appointmentsChart.update('none');
-    transactionsChart.update('none');
-    pendingApprovalsChart.update('none');
-}
-
-async function fetchLiveDashboardData() {
-    try {
-        const response = await fetch(liveDataUrl, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        if (!response.ok) {
-            return;
-        }
-        const data = await response.json();
-        const stats = data.stats || {};
-
-        updateCountText('total-users-count', stats.total_users || 0);
-        updateCountText('total-doctors-count', stats.total_doctors || 0);
-        updateCountText('total-patients-count', stats.total_patients || 0);
-        updateCountText('total-prescriptions-count', stats.total_prescriptions || 0);
-        updateCountText('total-revenue-count', stats.total_revenue || 0, 'Rs. ');
-
-        updateCountText('pending-doctors-count', `(${stats.pending_doctors_count || 0})`);
-        updateCountText('appointments-today-count', stats.appointments_today_count || 0);
-        updateCountText('paid-transactions-count', stats.paid_transactions_today_count || 0);
-        updateCountText('monitor-pending-doctors-count', stats.pending_doctors_count || 0);
-        updateCountText('appointments-title-count', stats.appointments_today_count || 0);
-        updateCountText('transactions-title-count', stats.paid_transactions_today_count || 0);
-        updateCountText('monitoring-last-updated', `Updated ${data.timestamp || 'just now'}`);
-        updateCountText('appointments-updated-at', data.timestamp || 'just now');
-        updateCountText('transactions-updated-at', data.timestamp || 'just now');
-
-        renderAppointments(data.recent_appointments || []);
-        renderTransactions(data.recent_transactions || []);
-        updateMonitoringGraph(data.timestamp || new Date().toLocaleTimeString(), stats);
-        pulseElement('appointments-title-count');
-        pulseElement('transactions-title-count');
-    } catch (error) {
-        console.error('Failed to load live dashboard data:', error);
-    }
-}
-
-function startAutoRefresh() {
-    if (refreshTimer) clearInterval(refreshTimer);
-    if (!autoRefreshEnabled) return;
-    refreshTimer = setInterval(() => {
-        if (document.hidden) return;
-        fetchLiveDashboardData();
-    }, 15000);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    fetchLiveDashboardData();
-    startAutoRefresh();
-
-    const manualBtn = document.getElementById('manual-refresh-btn');
-    if (manualBtn) {
-        manualBtn.addEventListener('click', fetchLiveDashboardData);
+    // Monthly Appointments Trend
+    const monthlyApptCtx = document.getElementById('monthlyAppointmentsTrend').getContext('2d');
+    if (monthlyApptCtx) {
+        new Chart(monthlyApptCtx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in appointment_trend %}'{{ item.month|date:"M" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Appointments',
+                    data: [{% for item in appointment_trend %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#4f46e5'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
     }
 
-    const toggleBtn = document.getElementById('auto-refresh-toggle');
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            autoRefreshEnabled = !autoRefreshEnabled;
-            toggleBtn.textContent = `Auto Refresh: ${autoRefreshEnabled ? 'On' : 'Off'}`;
-            toggleBtn.className = autoRefreshEnabled
-                ? 'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700'
-                : 'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-rose-100 text-rose-700';
-            startAutoRefresh();
+    // Monthly Revenue Trend
+    const monthlyRevCtx = document.getElementById('monthlyRevenueTrend').getContext('2d');
+    if (monthlyRevCtx) {
+        new Chart(monthlyRevCtx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in revenue_trend %}'{{ item.month|date:"M" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [{% for item in revenue_trend %}{{ item.total }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#10b981'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
+            }
         });
     }
 });

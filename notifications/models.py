@@ -24,6 +24,7 @@ class Notification(models.Model):
         ('system_update', 'System Update'),
         ('user_registered', 'New User Registered'),
         ('profile_updated', 'Profile Updated'),
+        ('password_changed', 'Password Changed'),
     ]
     
     PRIORITY_LEVELS = [

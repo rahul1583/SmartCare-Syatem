@@ -45,8 +45,8 @@ def medical_record_detail_view(request, record_id):
 
 @login_required
 def create_medical_record_view(request):
-    if request.user.is_patient:
-        messages.error(request, 'Access denied! Only doctors and admins can create medical records.')
+    if request.user.is_patient or request.user.is_admin:
+        messages.error(request, 'Access denied! Only doctors can create medical records.')
         return redirect('medical_records:medical_record_list')
     
     if request.method == 'POST':
@@ -110,8 +110,8 @@ def update_medical_record_view(request, record_id):
         
         # Check permissions
         if request.user.is_admin:
-            # Admin can edit all records
-            pass
+            messages.error(request, 'Access denied! Admins can only view medical records.')
+            return redirect('medical_records:medical_record_detail', record_id=medical_record.id)
         elif request.user.is_doctor:
             # Doctor can only edit their own records
             if medical_record.doctor != request.user:
@@ -119,7 +119,7 @@ def update_medical_record_view(request, record_id):
                 return redirect('medical_records:medical_record_list')
         else:
             # Patients cannot edit records
-            messages.error(request, 'Access denied! Only doctors and admins can edit medical records.')
+            messages.error(request, 'Access denied! Only doctors can edit medical records.')
             return redirect('medical_records:medical_record_list')
         
         if request.method == 'POST':
@@ -241,8 +241,8 @@ def lab_report_detail_view(request, report_id):
 
 @login_required
 def create_lab_report_view(request):
-    if request.user.is_patient:
-        messages.error(request, 'Access denied! Only doctors and admins can create lab reports.')
+    if request.user.is_patient or request.user.is_admin:
+        messages.error(request, 'Access denied! Only doctors can create lab reports.')
         return redirect('medical_records:lab_report_list')
     
     if request.method == 'POST':
@@ -297,11 +297,12 @@ def edit_lab_report_view(request, report_id):
     user = request.user
     base = LabReport.objects.select_related('patient', 'doctor')
     if user.is_admin:
-        lab_report = get_object_or_404(base, id=report_id)
+        messages.error(request, 'Access denied! Admins can only view lab reports.')
+        return redirect('medical_records:lab_report_detail', report_id=report_id)
     elif user.is_doctor:
         lab_report = get_object_or_404(base, id=report_id, doctor=user)
     else:
-        messages.error(request, 'Access denied! Only doctors and admins can edit lab reports.')
+        messages.error(request, 'Access denied! Only doctors can edit lab reports.')
         return redirect('medical_records:lab_report_list')
 
     if request.method == 'POST':
@@ -334,11 +335,12 @@ def upload_lab_report_view(request, report_id):
     user = request.user
     base = LabReport.objects.select_related('patient', 'doctor')
     if user.is_admin:
-        lab_report = get_object_or_404(base, id=report_id)
+        messages.error(request, 'Access denied! Admins can only view lab reports.')
+        return redirect('medical_records:lab_report_detail', report_id=report_id)
     elif user.is_doctor:
         lab_report = get_object_or_404(base, id=report_id, doctor=user)
     else:
-        messages.error(request, 'Access denied! Only doctors and admins can upload lab reports.')
+        messages.error(request, 'Access denied! Only doctors can upload lab reports.')
         return redirect('medical_records:lab_report_list')
 
     return render(request, 'medical_records/upload_lab_report.html', {'lab_report': lab_report})
@@ -387,8 +389,8 @@ def vital_signs_list_view(request):
 
 @login_required
 def add_vital_signs_view(request):
-    if request.user.is_patient:
-        messages.error(request, 'Access denied! Only doctors and admins can add vital signs.')
+    if request.user.is_patient or request.user.is_admin:
+        messages.error(request, 'Access denied! Only doctors can add vital signs.')
         return redirect('medical_records:vital_signs_list')
     
     if request.method == 'POST':
@@ -477,15 +479,15 @@ def add_vital_signs_view(request):
 
 @login_required
 def edit_vital_signs_view(request, record_id):
-    if request.user.is_patient:
-        messages.error(request, 'Access denied! Only doctors and admins can edit vital signs.')
+    if request.user.is_patient or request.user.is_admin:
+        messages.error(request, 'Access denied! Only doctors can edit vital signs.')
         return redirect('medical_records:vital_signs_list')
     
     try:
         medical_record = MedicalRecord.objects.get(id=record_id)
         
         # Check permissions
-        if not request.user.is_admin and medical_record.doctor != request.user:
+        if medical_record.doctor != request.user:
             messages.error(request, 'Access denied! You can only edit your own recordings.')
             return redirect('medical_records:vital_signs_list')
             

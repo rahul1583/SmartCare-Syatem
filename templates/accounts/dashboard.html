@@ -113,6 +113,16 @@
                         <div class="text-xs text-teal-100 mt-1">Patient records</div>
                     </div>
                 </a>
+                <a href="{% url 'accounts:password_change' %}" 
+                   class="group bg-gradient-to-br from-slate-700 to-slate-800 text-white p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                            <i class="fas fa-cog text-xl"></i>
+                        </div>
+                        <div class="font-medium">Settings</div>
+                        <div class="text-xs text-slate-100 mt-1">Change Password</div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
@@ -141,45 +151,79 @@
             <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
                 <i class="fas fa-th-large mr-3 text-emerald-600"></i>Quick Actions
             </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Manage Appointments -->
                 <a href="{% url 'appointments:appointment_list' %}" 
-                   class="group bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                   class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200 group-hover:rotate-12 transition-all duration-500">
                             <i class="fas fa-calendar-check text-xl"></i>
                         </div>
-                        <div class="font-medium">Manage Appointments</div>
-                        <div class="text-xs text-blue-100 mt-1">Approve/Decline requests</div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">Appointments</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Manage Requests</p>
+                        </div>
                     </div>
                 </a>
+
+                <!-- Prescriptions -->
                 <a href="{% url 'prescriptions:list' %}" 
-                   class="group bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                   class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-purple-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-200 group-hover:rotate-12 transition-all duration-500">
                             <i class="fas fa-prescription text-xl"></i>
                         </div>
-                        <div class="font-medium">Prescriptions</div>
-                        <div class="text-xs text-purple-100 mt-1">Patient medications</div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-purple-600 transition-colors">Prescriptions</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Patient Medications</p>
+                        </div>
                     </div>
                 </a>
+
+                <!-- View Bills -->
                 <a href="{% url 'billing:bill_list' %}" 
-                   class="group bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                   class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-orange-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-200 group-hover:rotate-12 transition-all duration-500">
                             <i class="fas fa-file-invoice-dollar text-xl"></i>
                         </div>
-                        <div class="font-medium">View Bills</div>
-                        <div class="text-xs text-orange-100 mt-1">View generated invoices</div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors">Financials</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Patient Invoices</p>
+                        </div>
                     </div>
                 </a>
+
+                <!-- Medical Records -->
                 <a href="{% url 'medical_records:medical_record_list' %}" 
-                   class="group bg-gradient-to-br from-teal-500 to-teal-600 text-white p-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105">
-                    <div class="flex flex-col items-center text-center">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 group-hover:bg-white/30 transition-colors">
+                   class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-teal-600 text-white flex items-center justify-center shadow-lg shadow-teal-200 group-hover:rotate-12 transition-all duration-500">
                             <i class="fas fa-file-medical text-xl"></i>
                         </div>
-                        <div class="font-medium">Medical Records</div>
-                        <div class="text-xs text-teal-100 mt-1">Patient records & history</div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-teal-600 transition-colors">Health Vault</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Centralized Records</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Security Settings -->
+                <a href="{% url 'accounts:password_change' %}" 
+                   class="group relative bg-white p-6 rounded-[2rem] border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-slate-100/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-800 text-white flex items-center justify-center shadow-lg shadow-slate-200 group-hover:rotate-12 transition-all duration-500">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 group-hover:text-slate-800 transition-colors">Security</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">Account Protection</p>
+                        </div>
                     </div>
                 </a>
             </div>

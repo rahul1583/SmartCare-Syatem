@@ -10,7 +10,7 @@
                 <h2 class="text-2xl font-bold text-gray-800">Medical Records</h2>
                 <p class="text-gray-600">View and manage medical records</p>
             </div>
-            {% if user.is_doctor or user.is_admin %}
+            {% if user.is_doctor %}
             <a href="{% url 'medical_records:create_medical_record' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 <i class="fas fa-plus mr-2"></i>Add Record
             </a>
@@ -70,7 +70,7 @@
             <div class="text-center py-12 bg-gray-50 rounded-lg">
                 <i class="fas fa-notes-medical text-gray-400 text-5xl mb-4"></i>
                 <p class="text-gray-600 text-lg">No medical records found.</p>
-                {% if user.is_doctor or user.is_admin %}
+                {% if user.is_doctor %}
                 <a href="{% url 'medical_records:create_medical_record' %}" class="inline-block mt-4 text-blue-600 hover:text-blue-800">
                     <i class="fas fa-plus mr-2"></i>Add your first record
                 </a>

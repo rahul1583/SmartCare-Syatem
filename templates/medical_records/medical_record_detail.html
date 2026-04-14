@@ -17,7 +17,7 @@
                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         <i class="fas fa-arrow-left mr-2"></i>Back to Records
                     </a>
-                    {% if user.is_doctor or user.is_admin %}
+                    {% if user.is_doctor %}
                         {% if medical_record.chief_complaint != "Vital signs measurement" %}
                             <a href="{% url 'medical_records:update_medical_record' medical_record.id %}" 
                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -315,9 +315,11 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ report.ordered_date|date:"F d, Y" }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <a href="{% url 'medical_records:lab_report_detail' report.id %}" 
-                                                   class="text-blue-600 hover:text-blue-900">View Details</a>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <a href="{% url 'medical_records:lab_report_detail' report.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">View</a>
+                                                {% if user.is_doctor %}
+                                                <a href="{% url 'medical_records:edit_lab_report' report.id %}" class="text-green-600 hover:text-green-900">Edit</a>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                         {% endfor %}
