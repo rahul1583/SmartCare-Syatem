@@ -956,15 +956,22 @@ def toggle_user_status(request, user_id):
     if not request.user.is_admin:
         return JsonResponse({'error': 'Access denied'}, status=403)
     
-    user = get_object_or_404(User, id=user_id)
-    user.is_active = not user.is_active
-    user.save()
-    
-    return JsonResponse({
-        'success': True,
-        'is_active': user.is_active,
-        'message': f'User {"activated" if user.is_active else "deactivated"} successfully'
-    })
+    try:
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+            
+        user.is_active = not user.is_active
+        user.save()
+        
+        return JsonResponse({
+            'success': True,
+            'is_active': user.is_active,
+            'message': f'User {"activated" if user.is_active else "deactivated"} successfully'
+        })
+    except Exception as e:
+        logger.exception("Error in toggle_user_status")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
 def delete_user(request, user_id):
@@ -974,7 +981,9 @@ def delete_user(request, user_id):
     
     if request.method == 'POST':
         try:
-            user = get_object_or_404(User, id=user_id)
+            user = User.objects.filter(id=user_id).first()
+            if not user:
+                return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
             
             # Prevent admin from deleting themselves
             if user.id == request.user.id:
@@ -991,7 +1000,8 @@ def delete_user(request, user_id):
             })
             
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            logger.exception("Error in delete_user")
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
@@ -1014,7 +1024,10 @@ def approve_doctor_view(request, doctor_id):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
     try:
-        doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+        doctor_profile = DoctorProfile.objects.filter(id=doctor_id).first()
+        if not doctor_profile:
+            return JsonResponse({'success': False, 'error': 'Doctor profile not found'}, status=404)
+            
         doctor_profile.is_approved = True
         doctor_profile.save()
         
@@ -1040,7 +1053,10 @@ def reject_doctor_view(request, doctor_id):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
     try:
-        doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+        doctor_profile = DoctorProfile.objects.filter(id=doctor_id).first()
+        if not doctor_profile:
+            return JsonResponse({'success': False, 'error': 'Doctor profile not found'}, status=404)
+            
         user = doctor_profile.user
         user_name = user.get_full_name()
         
