@@ -41,7 +41,7 @@ DEBUG = os.getenv('DEBUG', 'False' if IS_RENDER else 'True').lower() in ('true',
 
 _default_allowed_hosts = (
     'localhost,127.0.0.1,[::1],testserver,'
-    'smartcare-system.onrender.com,.onrender.com'
+    'smartcare-system.onrender.com,smartcare-syatem.onrender.com,.onrender.com'
 )
 ALLOWED_HOSTS = [
     host.strip()
@@ -52,6 +52,7 @@ ALLOWED_HOSTS = [
 # CSRF trusted origins (Render + local)
 CSRF_TRUSTED_ORIGINS = [
     "https://smartcare-system.onrender.com",
+    "https://smartcare-syatem.onrender.com",
     "https://*.onrender.com",
     "http://127.0.0.1:8000",
     "http://localhost:8000",

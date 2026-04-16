@@ -1013,16 +1013,23 @@ def approve_doctor_view(request, doctor_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
-    doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
-    doctor_profile.is_approved = True
-    doctor_profile.save()
-    
-    # Optionally notify the doctor here
-    
-    return JsonResponse({
-        'success': True,
-        'message': f'Dr. {doctor_profile.user.get_full_name()} approved successfully'
-    })
+    try:
+        doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+        doctor_profile.is_approved = True
+        doctor_profile.save()
+        
+        # Optionally notify the doctor here
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Dr. {doctor_profile.user.get_full_name()} approved successfully'
+        })
+    except Exception as e:
+        logger.exception("Error in approve_doctor_view")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @login_required
 def reject_doctor_view(request, doctor_id):
@@ -1032,17 +1039,24 @@ def reject_doctor_view(request, doctor_id):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
-    doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
-    user = doctor_profile.user
-    user_name = user.get_full_name()
-    
-    # Delete the user (this will also delete the doctor profile via CASCADE)
-    user.delete()
-    
-    return JsonResponse({
-        'success': True,
-        'message': f'Registration for Dr. {user_name} rejected and removed'
-    })
+    try:
+        doctor_profile = get_object_or_404(DoctorProfile, id=doctor_id)
+        user = doctor_profile.user
+        user_name = user.get_full_name()
+        
+        # Delete the user (this will also delete the doctor profile via CASCADE)
+        user.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Registration for Dr. {user_name} rejected and removed'
+        })
+    except Exception as e:
+        logger.exception("Error in reject_doctor_view")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     """Professional password change view with notification"""

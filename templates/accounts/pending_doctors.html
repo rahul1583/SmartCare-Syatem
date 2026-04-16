@@ -100,9 +100,9 @@ function approveDoctor(doctorId) {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(async response => {
+        const data = await response.json();
+        if (response.ok && data.success) {
             const row = document.getElementById(`doctor-row-${doctorId}`);
             row.classList.add('opacity-0', 'transition-opacity', 'duration-500');
             setTimeout(() => {
@@ -112,10 +112,13 @@ function approveDoctor(doctorId) {
                 }
             }, 500);
         } else {
-            alert('Error: ' + data.error);
+            alert('Error: ' + (data.error || data.message || 'Unknown error occurred'));
         }
     })
-    .catch(error => alert('Error approving doctor: ' + error));
+    .catch(error => {
+        console.error('Approval error:', error);
+        alert('Error approving doctor: ' + error.message);
+    });
 }
 
 function rejectDoctor(doctorId) {
@@ -128,9 +131,9 @@ function rejectDoctor(doctorId) {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(async response => {
+        const data = await response.json();
+        if (response.ok && data.success) {
             const row = document.getElementById(`doctor-row-${doctorId}`);
             row.classList.add('opacity-0', 'transition-opacity', 'duration-500');
             setTimeout(() => {
@@ -140,10 +143,13 @@ function rejectDoctor(doctorId) {
                 }
             }, 500);
         } else {
-            alert('Error: ' + data.error);
+            alert('Error: ' + (data.error || data.message || 'Unknown error occurred'));
         }
     })
-    .catch(error => alert('Error rejecting doctor: ' + error));
+    .catch(error => {
+        console.error('Rejection error:', error);
+        alert('Error rejecting doctor: ' + error.message);
+    });
 }
 </script>
 {% endblock %}
