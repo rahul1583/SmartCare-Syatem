@@ -32,7 +32,7 @@ class PatientProfileAdmin(admin.ModelAdmin):
 
 @admin.register(DoctorProfile)
 class DoctorProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'specialization', 'experience_years', 'license_number', 'consultation_fee', 'is_available')
-    list_filter = ('specialization', 'is_available')
+    list_display = ('user', 'specialization', 'experience_years', 'license_number', 'consultation_fee', 'is_approved', 'is_available')
+    list_filter = ('specialization', 'is_approved', 'is_available')
     search_fields = ('user__email', 'user__first_name', 'user__last_name', 'specialization')
     readonly_fields = ('created_at', 'updated_at')

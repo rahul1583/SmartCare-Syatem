@@ -56,6 +56,41 @@ class PatientProfileForm(forms.ModelForm):
         }
 
 class DoctorProfileForm(forms.ModelForm):
+    SPECIALIZATION_CHOICES = [
+        ('General Practice', 'General Practice'),
+        ('Pediatrics', 'Pediatrics'),
+        ('Cardiology', 'Cardiology'),
+        ('Dermatology', 'Dermatology'),
+        ('Neurology', 'Neurology'),
+        ('Orthopedics', 'Orthopedics'),
+        ('Oncology', 'Oncology'),
+        ('Gastroenterology', 'Gastroenterology'),
+        ('Endocrinology', 'Endocrinology'),
+        ('Ophthalmology', 'Ophthalmology'),
+        ('Urology', 'Urology'),
+        ('Psychiatry', 'Psychiatry'),
+        ('Radiology', 'Radiology'),
+        ('Anesthesiology', 'Anesthesiology'),
+        ('Emergency Medicine', 'Emergency Medicine'),
+        ('Internal Medicine', 'Internal Medicine'),
+        ('Obstetrics and Gynecology', 'Obstetrics and Gynecology'),
+        ('Surgery', 'Surgery'),
+        ('Pathology', 'Pathology'),
+        ('Nephrology', 'Nephrology'),
+        ('Pulmonology', 'Pulmonology'),
+        ('Rheumatology', 'Rheumatology'),
+        ('Infectious Disease', 'Infectious Disease'),
+        ('Allergy and Immunology', 'Allergy and Immunology'),
+        ('Geriatrics', 'Geriatrics'),
+        ('Sports Medicine', 'Sports Medicine'),
+        ('Physical Medicine and Rehabilitation', 'Physical Medicine and Rehabilitation'),
+        ('Nuclear Medicine', 'Nuclear Medicine'),
+        ('Preventive Medicine', 'Preventive Medicine'),
+        ('Family Medicine', 'Family Medicine'),
+    ]
+    
+    specialization = forms.ChoiceField(choices=SPECIALIZATION_CHOICES, required=True)
+
     class Meta:
         model = DoctorProfile
         fields = ['specialization', 'qualification', 'experience_years', 'license_number', 'consultation_fee', 'bio', 'is_available']

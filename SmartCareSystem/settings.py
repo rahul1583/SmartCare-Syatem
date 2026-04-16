@@ -36,17 +36,35 @@ if env_path.exists():
 SECRET_KEY = 'django-insecure-zr(s)mh4z3xq)-k1ufbdo4m0caeo3!-s0azmu39am0wou7ba@e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+IS_RENDER = bool(os.getenv('RENDER'))
+DEBUG = os.getenv('DEBUG', 'False' if IS_RENDER else 'True').lower() in ('true', '1', 'yes')
 
-_default_allowed_hosts = 'localhost,127.0.0.1,[::1],testserver,smartcare-system.onrender.com'
+_default_allowed_hosts = (
+    'localhost,127.0.0.1,[::1],testserver,'
+    'smartcare-system.onrender.com,.onrender.com'
+)
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv('DJANGO_ALLOWED_HOSTS', _default_allowed_hosts).split(',')
     if host.strip()
 ]
 
+# CSRF trusted origins (Render + local)
+CSRF_TRUSTED_ORIGINS = [
+    "https://smartcare-system.onrender.com",
+    "https://*.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
-# Application definition
+# Security settings for production
+if IS_RENDER:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    # If the site is accessed via HTTPS, ensure CSRF cookie is secure
+    CSRF_COOKIE_HTTPONLY = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -236,18 +254,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# CSRF trusted origins (production + local preview/dev)
-_default_csrf_origins = [
-    'https://smartcare-system.onrender.com',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
-
-if SITE_URL.startswith('http://') or SITE_URL.startswith('https://'):
-    _default_csrf_origins.append(SITE_URL.rstrip('/'))
-
-CSRF_TRUSTED_ORIGINS = _default_csrf_origins.copy()
-
+# Extra CSRF origins from environment
 extra_csrf_origins = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '')
 if extra_csrf_origins.strip():
     CSRF_TRUSTED_ORIGINS.extend(

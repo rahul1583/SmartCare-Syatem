@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q, Sum
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.db import models
+from django.db import models, transaction
 from datetime import datetime, timedelta
 from django.conf import settings
 import logging
@@ -221,17 +221,16 @@ def logout_view(request):
 class CustomLoginView(SuccessMessageMixin, LoginView):
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
-    success_message = "User login successfully"
-
+    
     def get_success_message(self, cleaned_data):
         user = self.request.user
         if user.is_admin:
-            return "Admin login successfully."
+            return "Admin login successfully"
         elif user.is_doctor:
-            return "Doctor login successfully."
+            return "Doctor login successfully"
         elif user.is_patient:
-            return "Patient login successfully."
-        return self.success_message
+            return "Patient login successfully"
+        return "User login successfully"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -282,34 +281,35 @@ def register_view(request):
         form = UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                user = form.save()
-                
-                # Create appropriate profile based on role
-                if user.is_patient:
-                    # Create profile with minimal required data
-                    PatientProfile.objects.create(
-                        user=user,
-                        date_of_birth='2000-01-01',  # Default date
-                        gender='M'  # Default gender
-                    )
-                elif user.is_doctor:
-                    # Get uploaded certificate
-                    doctor_certificate = form.cleaned_data.get('doctor_certificate')
+                with transaction.atomic():
+                    user = form.save()
                     
-                    DoctorProfile.objects.create(
-                        user=user,
-                        specialization='General Practice',
-                        qualification='MBBS',
-                        experience_years=0,
-                        license_number='TEMP-' + str(user.id),
-                        consultation_fee=500.00,
-                        doctor_certificate=doctor_certificate,
-                        is_approved=False
-                    )
-                elif user.is_admin:
-                    # Admin users don't need additional profiles by default
-                    # They can access admin features directly
-                    pass
+                    # Create appropriate profile based on role
+                    if user.is_patient:
+                        # Create profile with minimal required data
+                        PatientProfile.objects.create(
+                            user=user,
+                            date_of_birth='2000-01-01',  # Default date
+                            gender='M'  # Default gender
+                        )
+                    elif user.is_doctor:
+                        # Get uploaded certificate
+                        doctor_certificate = form.cleaned_data.get('doctor_certificate')
+                        
+                        DoctorProfile.objects.create(
+                            user=user,
+                            specialization='General Practice',
+                            qualification='MBBS',
+                            experience_years=0,
+                            license_number='TEMP-' + str(user.id),
+                            consultation_fee=500.00,
+                            doctor_certificate=doctor_certificate,
+                            is_approved=False
+                        )
+                    elif user.is_admin:
+                        # Admin users don't need additional profiles by default
+                        # They can access admin features directly
+                        pass
                 
                 # Specify the backend when multiple are configured
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
